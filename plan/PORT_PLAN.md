@@ -147,16 +147,17 @@ Implementados en renderer/helper (misma entidad):
     - **Ítems:** accel `(0.025 + 0.55 * proximity²) * force`; consume + log al tocar.
     - **Jugadores/mobs:** pull sin damp de input; accel ≤ `0.10` (&lt; walk ≈0.216) para poder escapar caminando; daño al tocar igual.
 24. Por ahora **no** hay inventario/loot — solo destroy + log en ítems. `Force` lista para mecánicas (pull + daño).
+25. Al **matar un mob** (no jugador): el Warp emite `WarpDeathRipple` — partículas oscuras caen, luego se esparcen como agua hasta **14** bloques; mobs en el anillo reciben **7♥** (14 HP) una vez; si mueren, **cadena** (nueva onda).
 
 ### Fase I — Generación determinística (superficie)
 
-25. `WarpPlacement`: hash estable `WorldgenRandom.setLargeFeatureWithSalt(seed, cellX, cellZ, salt)` → chance + offset XZ + subtype/Distortion/Force.
-26. Celdas de **`regionSize`** (default **384**); chance **`chancePermille`/10000** (default **180** = 18%).
-27. `WarpSurfaceFeature` + datapack (`configured_feature` / `placed_feature` / `neoforge:add_features` en `#minecraft:is_overworld`, step `surface_structures`).
-28. Y = heightmap `WORLD_SURFACE_WG` **+2 o +3** (aire libre; prefiere +3); spawn una sola vez; **sin respawn** si se destruye.
-29. Config COMMON: `warpGeneration.enabled` / `regionSize` / `chancePermille`.
-30. Comando `/warplocate [radio]` — lista sitios predichos por la fórmula (no spawnea).
-31. Comando `/warptp [radio]` — TP al Warp más cercano (entidad cargada, o sitio predicho).
+26. `WarpPlacement`: hash estable `WorldgenRandom.setLargeFeatureWithSalt(seed, cellX, cellZ, salt)` → chance + offset XZ + subtype/Distortion/Force.
+27. Celdas de **`regionSize`** (default **384**); chance **`chancePermille`/10000** (default **180** = 18%).
+28. `WarpSurfaceFeature` + datapack (`configured_feature` / `placed_feature` / `neoforge:add_features` en `#minecraft:is_overworld`, step `surface_structures`).
+29. Y = heightmap `WORLD_SURFACE_WG` **+2 o +3** (aire libre; prefiere +3); spawn una sola vez; **sin respawn** si se destruye.
+30. Config COMMON: `warpGeneration.enabled` / `regionSize` / `chancePermille`.
+31. Comando `/warplocate [radio]` — lista sitios predichos por la fórmula (no spawnea).
+32. Comando `/warptp [radio]` — TP al Warp más cercano (entidad cargada, o sitio predicho).
 
 ---
 
@@ -258,6 +259,9 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-09-22 | Lift vertical bajo el nodo; onda 14 bloques / 7♥ / cadena | `applyPull` lift mobs; `WarpDeathRipple` 14 / 14HP / chain |
+| 2026-09-22 | Más gravedad en mobs (no escapan caminando); player igual | mob pull 4× + path agresivo/damp; player soft |
+| 2026-09-22 | Onda oscura al matar mob (cae + se esparce 7 bloques, ½♥) | `WarpDeathRipple`; trigger en `tryTouchDamage` |
 | 2026-09-22 | Comando `/warptp` al Warp más cercano | `WarpCommands.teleportToNearestWarp` |
 | 2026-09-22 | Gravedad 2× en mobs (jugador igual) | `MOB_PULL_MULTIPLIER` / `MAX_MOB_PULL_ACCEL` |
 | 2026-09-22 | Warps flotando 2–3 bloques sobre el piso | `WarpSurfaceFeature.pickHoverY`; prefiere +3 si hay aire |

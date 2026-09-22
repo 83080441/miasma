@@ -61,15 +61,18 @@ public class WarpEntity extends Entity {
     private static final double PULL_ACCEL_AT_FULL_FORCE = 1.0;
     /** Living entities use a gentler multiplier than items at the same Force. */
     private static final double LIVING_PULL_MULTIPLIER = 0.55;
-    /** Non-player mobs get twice the living pull strength. */
-    private static final double MOB_PULL_MULTIPLIER = LIVING_PULL_MULTIPLIER * 2.0;
+    /** Non-player mobs: much stronger well so they cannot casually walk out. */
+    private static final double MOB_PULL_MULTIPLIER = LIVING_PULL_MULTIPLIER * 4.0;
     /**
-     * Max inward acceleration added to players/mobs per tick (blocks/tick).
+     * Max inward acceleration added to players per tick (blocks/tick).
      * Vanilla walk ≈ 0.216; keep well below so walking always escapes.
      */
     private static final double MAX_LIVING_PULL_ACCEL = 0.10;
-    /** Cap for non-player mobs (2× player pull). */
-    private static final double MAX_MOB_PULL_ACCEL = MAX_LIVING_PULL_ACCEL * 2.0;
+    /**
+     * Cap for non-player mobs — above walk/sprint AI so the well wins.
+     * (Used only if living-safe path is taken; mobs use the aggressive pull path.)
+     */
+    private static final double MAX_MOB_PULL_ACCEL = 0.50;
 
     private static final EntityDataAccessor<Integer> DATA_DISTORTION =
             SynchedEntityData.defineId(WarpEntity.class, EntityDataSerializers.INT);
@@ -167,8 +170,10 @@ public class WarpEntity extends Entity {
 
             boolean isPlayer = living instanceof Player;
             double strengthMul = isPlayer ? LIVING_PULL_MULTIPLIER : MOB_PULL_MULTIPLIER;
+            // Players: soft capped pull (escapable). Mobs: damped aggressive pull (cannot walk out).
+            boolean livingSafe = isPlayer;
             double maxAccel = isPlayer ? MAX_LIVING_PULL_ACCEL : MAX_MOB_PULL_ACCEL;
-            this.applyPull(target, center, forceScale, strengthMul, false, true, maxAccel);
+            this.applyPull(target, center, forceScale, strengthMul, false, livingSafe, maxAccel);
         }
     }
 
@@ -194,6 +199,10 @@ public class WarpEntity extends Entity {
 
         if (living.hurtServer(server, this.damageSources().magic(), damage)) {
             this.lastTouchDamageTime.put(id, now);
+            // Dark surface ripple when this Warp finishes a non-player mob.
+            if (!(living instanceof Player) && (living.isDeadOrDying() || !living.isAlive())) {
+                WarpDeathRipple.spawn(server, this.position());
+            }
         }
     }
 
@@ -242,6 +251,18 @@ public class WarpEntity extends Entity {
         }
 
         Vec3 pull = delta.scale(accel / dist);
+
+        // Mobs directly under the node: strong vertical lift so they rise into the well.
+        if (!livingSafe) {
+            double horiz = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+            boolean below = delta.y > 0.25;
+            if (below && horiz < 2.25) {
+                double lift = (0.14 + 0.28 * proximity) * forceScale * Math.max(1.0, strengthMul * 0.35);
+                pull = new Vec3(pull.x * 0.55, Math.max(pull.y, lift), pull.z * 0.55);
+                entity.setNoGravity(true);
+            }
+        }
+
         if (livingSafe) {
             // Do not damp walk/sprint input — only add a capped inward nudge.
             entity.setDeltaMovement(entity.getDeltaMovement().add(pull));

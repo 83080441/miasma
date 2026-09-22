@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -112,7 +111,7 @@ public final class WarpCommands {
         if (nearestEntity != null) {
             final WarpEntity warp = nearestEntity;
             double x = warp.getX();
-            double y = warp.getY();
+            double y = from.y; // keep caller's height — avoid burying under terrain
             double z = warp.getZ();
             player.teleportTo(x, y, z);
             double dist = Math.sqrt(bestEntityDistSq);
@@ -148,14 +147,13 @@ public final class WarpCommands {
 
         sites.sort(Comparator.comparingLong(s -> distSq(centerX, centerZ, s.x(), s.z())));
         WarpPlacement.WarpSite site = sites.get(0);
-        int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, site.x(), site.z());
-        int hoverY = Math.min(level.getMaxY() - 1, surfaceY + 2);
-        player.teleportTo(site.x() + 0.5, hoverY + 0.5, site.z() + 0.5);
+        double y = from.y;
+        player.teleportTo(site.x() + 0.5, y, site.z() + 0.5);
         long dist = Math.round(Math.sqrt(distSq(centerX, centerZ, site.x(), site.z())));
         source.sendSuccess(
                 () -> Component.literal(String.format(
-                        "Teleported to predicted Warp [%d, %d, %d] %s (dist=%d; chunk may still generate)",
-                        site.x(), hoverY, site.z(), site.subtype().id(), dist
+                        "Teleported to predicted Warp [%.1f, %.1f, %.1f] %s (dist=%d; chunk may still generate)",
+                        site.x() + 0.5, y, site.z() + 0.5, site.subtype().id(), dist
                 )),
                 true
         );
