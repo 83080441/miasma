@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": "sdfg:warp_surface",
+  "step": "surface_structures"
+}

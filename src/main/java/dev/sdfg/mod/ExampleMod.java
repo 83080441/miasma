@@ -28,6 +28,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import dev.sdfg.mod.entity.ModEntities;
 import dev.sdfg.mod.particle.ModParticles;
+import dev.sdfg.mod.worldgen.ModWorldGen;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -63,6 +64,7 @@ public class ExampleMod {
         CREATIVE_MODE_TABS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModParticles.PARTICLE_TYPES.register(modEventBus);
+        ModWorldGen.FEATURES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 

@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
@@ -60,11 +61,15 @@ public class WarpEntity extends Entity {
     private static final double PULL_ACCEL_AT_FULL_FORCE = 1.0;
     /** Living entities use a gentler multiplier than items at the same Force. */
     private static final double LIVING_PULL_MULTIPLIER = 0.55;
+    /** Non-player mobs get twice the living pull strength. */
+    private static final double MOB_PULL_MULTIPLIER = LIVING_PULL_MULTIPLIER * 2.0;
     /**
      * Max inward acceleration added to players/mobs per tick (blocks/tick).
      * Vanilla walk ≈ 0.216; keep well below so walking always escapes.
      */
     private static final double MAX_LIVING_PULL_ACCEL = 0.10;
+    /** Cap for non-player mobs (2× player pull). */
+    private static final double MAX_MOB_PULL_ACCEL = MAX_LIVING_PULL_ACCEL * 2.0;
 
     private static final EntityDataAccessor<Integer> DATA_DISTORTION =
             SynchedEntityData.defineId(WarpEntity.class, EntityDataSerializers.INT);
@@ -127,7 +132,7 @@ public class WarpEntity extends Entity {
                 continue;
             }
 
-            this.applyPull(item, center, forceScale, 1.0, true, false);
+            this.applyPull(item, center, forceScale, 1.0, true, false, MAX_LIVING_PULL_ACCEL);
         }
     }
 
@@ -160,7 +165,10 @@ public class WarpEntity extends Entity {
                 this.tryTouchDamage(living);
             }
 
-            this.applyPull(target, center, forceScale, LIVING_PULL_MULTIPLIER, false, true);
+            boolean isPlayer = living instanceof Player;
+            double strengthMul = isPlayer ? LIVING_PULL_MULTIPLIER : MOB_PULL_MULTIPLIER;
+            double maxAccel = isPlayer ? MAX_LIVING_PULL_ACCEL : MAX_MOB_PULL_ACCEL;
+            this.applyPull(target, center, forceScale, strengthMul, false, true, maxAccel);
         }
     }
 
@@ -205,7 +213,8 @@ public class WarpEntity extends Entity {
 
     /**
      * @param softenGravity if true, disable entity gravity when the well grips (items only)
-     * @param livingSafe if true, never damp existing motion and cap pull below walk speed
+     * @param livingSafe if true, never damp existing motion and cap pull with {@code maxLivingAccel}
+     * @param maxLivingAccel max inward accel when {@code livingSafe} (players vs mobs may differ)
      */
     private void applyPull(
             Entity entity,
@@ -213,7 +222,8 @@ public class WarpEntity extends Entity {
             double forceScale,
             double strengthMul,
             boolean softenGravity,
-            boolean livingSafe
+            boolean livingSafe,
+            double maxLivingAccel
     ) {
         Vec3 delta = center.subtract(entity.position());
         double dist = delta.length();
@@ -224,9 +234,9 @@ public class WarpEntity extends Entity {
         double proximity = 1.0 - dist / PULL_RANGE;
         double accel;
         if (livingSafe) {
-            // Soft well: Force 100 near center stays under walk speed.
+            // Soft well: Force 100 near center stays under the given living cap.
             accel = (0.012 + 0.10 * proximity * proximity) * forceScale * strengthMul;
-            accel = Math.min(accel, MAX_LIVING_PULL_ACCEL);
+            accel = Math.min(accel, maxLivingAccel);
         } else {
             accel = (0.025 + 0.55 * proximity * proximity) * forceScale * strengthMul;
         }

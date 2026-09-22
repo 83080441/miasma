@@ -148,6 +148,16 @@ Implementados en renderer/helper (misma entidad):
     - **Jugadores/mobs:** pull sin damp de input; accel ≤ `0.10` (&lt; walk ≈0.216) para poder escapar caminando; daño al tocar igual.
 24. Por ahora **no** hay inventario/loot — solo destroy + log en ítems. `Force` lista para mecánicas (pull + daño).
 
+### Fase I — Generación determinística (superficie)
+
+25. `WarpPlacement`: hash estable `WorldgenRandom.setLargeFeatureWithSalt(seed, cellX, cellZ, salt)` → chance + offset XZ + subtype/Distortion/Force.
+26. Celdas de **`regionSize`** (default **384**); chance **`chancePermille`/10000** (default **180** = 18%).
+27. `WarpSurfaceFeature` + datapack (`configured_feature` / `placed_feature` / `neoforge:add_features` en `#minecraft:is_overworld`, step `surface_structures`).
+28. Y = heightmap `WORLD_SURFACE_WG` **+2 o +3** (aire libre; prefiere +3); spawn una sola vez; **sin respawn** si se destruye.
+29. Config COMMON: `warpGeneration.enabled` / `regionSize` / `chancePermille`.
+30. Comando `/warplocate [radio]` — lista sitios predichos por la fórmula (no spawnea).
+31. Comando `/warptp [radio]` — TP al Warp más cercano (entidad cargada, o sitio predicho).
+
 ---
 
 ## 4. Decisiones técnicas a respetar
@@ -163,6 +173,7 @@ Implementados en renderer/helper (misma entidad):
 - Eco: category gains (incluye MUSIC) + pitch; no tocar UI; sin EFX low-pass en 26.2.
 - Comando: `/warpkill` / `/killwarps`.
 - Gravedad: pull 12 bloques; living **escapable a pie** (pull ≤0.10, sin damp); ítems se consumen; touch damage `Force/10` HP/s; static no.
+- Worldgen: solo Overworld; superficie; XZ+attrs determinísticos por seed; sin respawn tras kill.
 - APIs 26.2: `ValueInput`/`ValueOutput`, `SubmitNodeCollector`, `EntityRenderState`, `SingleQuadParticle.Layer`, `PlaySoundEvent`, `PlayLevelSoundEvent`, `updateCategoryVolume`.
 
 ---
@@ -193,6 +204,9 @@ Checklist visual:
 - [ ] Vortex/binary/amoeba/virus atraen ítems, jugadores y mobs en 12 bloques
 - [ ] Static **no** atrae
 - [ ] Al tocar: ítem desaparece; living reciben daño cada 1s (Force 50 → 2.5♥/s; Force 100 → 5♥/s)
+- [ ] Mundo nuevo: Warps escasos en superficie Overworld
+- [ ] Misma seed → mismos XZ (`/warplocate` coincide)
+- [ ] Matar Warp → no reaparece al reexplorar el chunk
 
 ---
 
@@ -202,13 +216,21 @@ Checklist visual:
 src/main/java/dev/sdfg/mod/
   ExampleMod.java
   ExampleModClient.java
-  WarpCommands.java            # /warpkill /killwarps
+  WarpCommands.java            # /warpkill /killwarps /warplocate /warptp
   entity/
     WarpEntity.java
     WarpSubtype.java
     ModEntities.java
+  worldgen/
+    WarpPlacement.java         # fórmula seed → sitio
+    WarpSurfaceFeature.java    # spawn superficie
+    ModWorldGen.java           # DeferredRegister FEATURE
   particle/
     ModParticles.java
+  resources/data/sdfg/
+    worldgen/configured_feature/warp_surface.json
+    worldgen/placed_feature/warp_surface.json
+    neoforge/biome_modifier/add_warp_surface.json
   client/
     WarpSceneCapture.java
     WarpRenderHelper.java
@@ -236,8 +258,11 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
-| 2026-09-22 | Primer commit en GitHub `83080441/miasma` (historial limpio) | remote + identidad `dev.sdfg.mod`/`sdfg` |
-| 2026-09-22 | Compilar como `dev.sdfg.mod` | `mod_group_id`/`package`=`dev.sdfg.mod`; `mod_id`=`sdfg`; assets `assets/sdfg/` |
+| 2026-09-22 | Comando `/warptp` al Warp más cercano | `WarpCommands.teleportToNearestWarp` |
+| 2026-09-22 | Gravedad 2× en mobs (jugador igual) | `MOB_PULL_MULTIPLIER` / `MAX_MOB_PULL_ACCEL` |
+| 2026-09-22 | Warps flotando 2–3 bloques sobre el piso | `WarpSurfaceFeature.pickHoverY`; prefiere +3 si hay aire |
+| 2026-09-22 | Generación determinística de Warps (superficie, escasos, sin respawn) | Fase I; `WarpPlacement` / `WarpSurfaceFeature`; `/warplocate`; config `warpGeneration` |
+| 2026-09-22 | Primer commit en GitHub `83080441/miasma` (historial limpio) | remote + identidad `dev.sdfg.mod`/`sdfg` || 2026-09-22 | Compilar como `dev.sdfg.mod` | `mod_group_id`/`package`=`dev.sdfg.mod`; `mod_id`=`sdfg`; assets `assets/sdfg/` |
 | 2026-09-22 | Prep GitHub: `.cursor/` y `net/` solo locales | `.gitignore` + untrack `.cursor`; `net/` ya ignorado |
 | 2026-09-21 | Extraer shape/sprites del caldero vanilla a `plan/` | `plan/cauldron/` (JSON + PNG/JPG) |
 | 2026-09-20 | Implementar Archify para ver arquitectura → archivos | Skill en `.agents/skills/archify`; `plan/archify/warp-architecture.{json,html}` |

@@ -59,3 +59,11 @@ La UI del menú queda intacta.
 - **Force alta** → más motes violeta pálido caen hacia el centro, mismo ritmo que el pozo.
 
 El Warp no es un modelo. Es un **agujero en la percepción**.
+
+---
+
+## En el mundo
+
+Aparecen **solo al generar terreno** (Overworld), **2–3 bloques sobre el piso** (si hay aire), y son **escasos**.
+
+La posición XZ (y el tipo / Distortion / Force) sale de una **fórmula fija con la seed** del mundo: misma seed → mismos sitios. Si un Warp se destruye, **no vuelve a spawnear** en esa ubicación.

@@ -35,3 +35,5 @@ run/
 repo/
 !**/src/**/repo/
 net/
+
+world-template/

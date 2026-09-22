@@ -35,7 +35,7 @@ neoForge {
         client {
             client()
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-            // Auto-join the singleplayer world named "test" on launch
+            // Fresh creative world "test" is copied before each launch (see prepareTestWorld).
             programArguments.addAll '--quickPlaySingleplayer', 'test'
         }
 
@@ -114,4 +114,37 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
+}
+
+// Each runClient gets a fresh creative "test" world from world-template/ (chunks empty so mod worldgen runs).
+def testWorldDir = layout.projectDirectory.dir('run/saves/test')
+def testWorldTemplate = layout.projectDirectory.dir('world-template/test')
+
+tasks.register('cleanTestWorld', Delete) {
+    delete testWorldDir
+    // Always wipe so each runClient gets a brand-new copy.
+    outputs.upToDateWhen { false }
+}
+
+tasks.register('prepareTestWorld', Copy) {
+    dependsOn 'cleanTestWorld'
+    from testWorldTemplate
+    into testWorldDir
+    outputs.upToDateWhen { false }
+    doFirst {
+        if (!testWorldTemplate.asFile.exists()) {
+            throw new GradleException("Missing world template at ${testWorldTemplate.asFile}. Expected creative world 'test'.")
+        }
+        logger.lifecycle("Installing fresh creative world from world-template/test -> run/saves/test")
+    }
+    doLast {
+        def lock = testWorldDir.file('session.lock').asFile
+        if (lock.exists()) {
+            lock.delete()
+        }
+    }
+}
+
+tasks.named('runClient').configure {
+    dependsOn 'prepareTestWorld'
 }
