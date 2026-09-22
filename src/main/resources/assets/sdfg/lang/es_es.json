@@ -1,0 +1,15 @@
+{
+  "itemGroup.sdfg": "Pestaña SDFG Mod",
+  "block.sdfg.example_block": "Bloque de ejemplo",
+  "item.sdfg.example_item": "Objeto de ejemplo",
+
+  "entity.sdfg.entity1": "Warp",
+
+  "sdfg.configuration.title": "Configs de SDFG Mod",
+  "sdfg.configuration.section.sdfg.common.toml": "Configs de SDFG Mod",
+  "sdfg.configuration.section.sdfg.common.toml.title": "Configs de SDFG Mod",
+  "sdfg.configuration.items": "Lista de objetos",
+  "sdfg.configuration.logDirtBlock": "Log Dirt Block",
+  "sdfg.configuration.magicNumberIntroduction": "Texto del número mágico",
+  "sdfg.configuration.magicNumber": "Número mágico"
+}

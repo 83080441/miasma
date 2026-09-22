@@ -1,0 +1,15 @@
+{
+  "itemGroup.sdfg": "SDFG Mod Tab",
+  "block.sdfg.example_block": "Example Block",
+  "item.sdfg.example_item": "Example Item",
+
+  "entity.sdfg.entity1": "Warp",
+
+  "sdfg.configuration.title": "SDFG Mod Configs",
+  "sdfg.configuration.section.sdfg.common.toml": "SDFG Mod Configs",
+  "sdfg.configuration.section.sdfg.common.toml.title": "SDFG Mod Configs",
+  "sdfg.configuration.items": "Item List",
+  "sdfg.configuration.logDirtBlock": "Log Dirt Block",
+  "sdfg.configuration.magicNumberIntroduction": "Magic Number Text",
+  "sdfg.configuration.magicNumber": "Magic Number"
+}
