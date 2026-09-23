@@ -259,6 +259,7 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-09-22 | Casco Lente Revelador (HUD al mirar Warp) | `revealing_helmet` + `WarpRevealOverlay` |
 | 2026-09-22 | Lift vertical bajo el nodo; onda 14 bloques / 7♥ / cadena | `applyPull` lift mobs; `WarpDeathRipple` 14 / 14HP / chain |
 | 2026-09-22 | Más gravedad en mobs (no escapan caminando); player igual | mob pull 4× + path agresivo/damp; player soft |
 | 2026-09-22 | Onda oscura al matar mob (cae + se esparce 7 bloques, ½♥) | `WarpDeathRipple`; trigger en `tryTouchDamage` |

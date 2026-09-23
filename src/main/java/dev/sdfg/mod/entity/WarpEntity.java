@@ -200,7 +200,9 @@ public class WarpEntity extends Entity {
         if (living.hurtServer(server, this.damageSources().magic(), damage)) {
             this.lastTouchDamageTime.put(id, now);
             // Dark surface ripple when this Warp finishes a non-player mob.
+            // Force gain = victim max HP so Force/10 damage stays coherent with prey size.
             if (!(living instanceof Player) && (living.isDeadOrDying() || !living.isAlive())) {
+                this.addForce(Math.max(1, Math.round(living.getMaxHealth())));
                 WarpDeathRipple.spawn(server, this.position());
             }
         }
@@ -282,6 +284,8 @@ public class WarpEntity extends Entity {
         Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         String name = id != null ? id.getPath() : stack.getItem().toString();
         ExampleMod.LOGGER.info("item destroy: {}", name);
+        // +1 Force per item count absorbed (clamped at MAX_FORCE).
+        this.addForce(Math.max(1, stack.getCount()));
         item.discard();
     }
 
@@ -322,6 +326,14 @@ public class WarpEntity extends Entity {
 
     public void setForce(int force) {
         this.entityData.set(DATA_FORCE, Mth.clamp(force, MIN_FORCE, MAX_FORCE));
+    }
+
+    /** Adds Force, clamped to {@link #MAX_FORCE}. */
+    public void addForce(int amount) {
+        if (amount <= 0) {
+            return;
+        }
+        this.setForce(this.getForce() + amount);
     }
 
     public float getForceFactor() {

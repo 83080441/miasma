@@ -12,6 +12,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.equipment.ArmorMaterials;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -48,12 +50,19 @@ public class ExampleMod {
     public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", p -> p.food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
 
+    /** Iron-look helmet that reveals Warp stats when looking at a node. */
+    public static final DeferredItem<Item> REVEALING_HELMET = ITEMS.registerItem(
+            "revealing_helmet",
+            props -> new Item(props.humanoidArmor(ArmorMaterials.IRON, ArmorType.HELMET))
+    );
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.sdfg")) 
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(EXAMPLE_ITEM.get());
+                output.accept(REVEALING_HELMET.get());
             }).build());
 
     public ExampleMod(IEventBus modEventBus, ModContainer modContainer) {
