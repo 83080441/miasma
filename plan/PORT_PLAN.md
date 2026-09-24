@@ -259,6 +259,8 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-09-24 | Datapack Element: todos los bloques + mobs | ~725 items bloque + ~90 entities; `tools/generate_element_datapack.js` |
+| 2026-09-24 | Element datapack ítems/mobs + lookup | `ElementDefinitions` / `ElementLookup`; ejemplos torch + zombie |
 | 2026-09-23 | Elementos numéricos + mezcla en Warps | `Element.number`; `ElementAmounts`; worldgen + HUD |
 | 2026-09-23 | Sistema Element (fundación: catálogo + API) | `plan/ELEMENT_README.md`; `Element` / `ElementHolder` |
 | 2026-09-22 | Casco Lente Revelador (HUD al mirar Warp) | `revealing_helmet` + `WarpRevealOverlay` |

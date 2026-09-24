@@ -1,17 +1,22 @@
 package dev.sdfg.mod.element;
 
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import dev.sdfg.mod.ExampleMod;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Per-element integer amounts (e.g. fire=1, water=2). Zero means absent;
@@ -25,6 +30,15 @@ public final class ElementAmounts {
     public static final int MIN_PRESENT = 1;
     /** Cap per element. */
     public static final int MAX_AMOUNT = 100;
+
+    /**
+     * Datapack JSON shape: {@code { "elements": { "fire": 40, "light": 15 } }}.
+     */
+    public static final Codec<ElementAmounts> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.unboundedMap(Codec.STRING, Codec.INT)
+                    .optionalFieldOf("elements", Map.of())
+                    .forGetter(ElementAmounts::toIdMap)
+    ).apply(instance, map -> fromIdMap(map, true)));
 
     private static final int SLOT_COUNT = Element.values().length;
 
@@ -49,6 +63,44 @@ public final class ElementAmounts {
 
     public static ElementAmounts copyOf(ElementAmounts other) {
         return other == null ? empty() : new ElementAmounts(other.amounts.clone());
+    }
+
+    /**
+     * Builds amounts from element id → quantity. Unknown ids are skipped (and logged if {@code logUnknown}).
+     * Values ≤ 0 are ignored; positive values are clamped to {@link #MIN_PRESENT}–{@link #MAX_AMOUNT}.
+     */
+    public static ElementAmounts fromIdMap(Map<String, Integer> map, boolean logUnknown) {
+        ElementAmounts result = empty();
+        if (map == null || map.isEmpty()) {
+            return result;
+        }
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            Element element = Element.byId(entry.getKey());
+            if (element == null) {
+                if (logUnknown) {
+                    ExampleMod.LOGGER.warn("Unknown element id '{}' in element datapack entry; ignoring", entry.getKey());
+                }
+                continue;
+            }
+            Integer raw = entry.getValue();
+            if (raw == null || raw <= 0) {
+                continue;
+            }
+            result.set(element, raw);
+        }
+        return result;
+    }
+
+    /** Sparse map of present element ids → amounts (for codecs / JSON). */
+    public Map<String, Integer> toIdMap() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        for (Element element : Element.values()) {
+            int amount = get(element);
+            if (amount > 0) {
+                map.put(element.id(), amount);
+            }
+        }
+        return map;
     }
 
     /**
