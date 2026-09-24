@@ -1,6 +1,9 @@
 package dev.sdfg.mod.entity;
 
 import dev.sdfg.mod.ExampleMod;
+import dev.sdfg.mod.element.Element;
+import dev.sdfg.mod.element.ElementAmounts;
+import dev.sdfg.mod.element.ElementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -29,15 +32,17 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Floating warp that distorts the view behind it.
  * Sized 0.5×0.5, snapped to block center. Distortion 1–100. Force 1–100 (gravity well).
+ * Carries {@link ElementAmounts} (numeric mix, e.g. fire=1 water=2).
  * Non-static subtypes pull items, players, and mobs (12 blocks); items are destroyed on contact;
  * touching living entities take Force-scaled damage once per second.
  */
-public class WarpEntity extends Entity {
+public class WarpEntity extends Entity implements ElementHolder {
     public static final int MIN_DISTORTION = 1;
     public static final int MAX_DISTORTION = 100;
     public static final int DEFAULT_DISTORTION = 50;
@@ -80,6 +85,9 @@ public class WarpEntity extends Entity {
             SynchedEntityData.defineId(WarpEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_FORCE =
             SynchedEntityData.defineId(WarpEntity.class, EntityDataSerializers.INT);
+    /** Encoded {@link ElementAmounts} ({@code 1:3,2:1}). */
+    private static final EntityDataAccessor<String> DATA_ELEMENTS =
+            SynchedEntityData.defineId(WarpEntity.class, EntityDataSerializers.STRING);
 
     private boolean snappedToBlock;
     /** Last game time (tick) when each living entity was damaged by this warp. */
@@ -306,6 +314,7 @@ public class WarpEntity extends Entity {
         entityData.define(DATA_DISTORTION, DEFAULT_DISTORTION);
         entityData.define(DATA_SUBTYPE, WarpSubtype.STATIC.ordinal());
         entityData.define(DATA_FORCE, DEFAULT_FORCE);
+        entityData.define(DATA_ELEMENTS, "");
     }
 
     public int getDistortion() {
@@ -349,10 +358,36 @@ public class WarpEntity extends Entity {
     }
 
     @Override
+    public Optional<Element> getElement() {
+        return getElementAmounts().primary();
+    }
+
+    @Override
+    public ElementAmounts getElementAmounts() {
+        return ElementAmounts.decode(this.entityData.get(DATA_ELEMENTS));
+    }
+
+    public void setElementAmounts(ElementAmounts amounts) {
+        ElementAmounts copy = ElementAmounts.copyOf(amounts);
+        this.entityData.set(DATA_ELEMENTS, copy.encode());
+    }
+
+    public int getElementAmount(Element element) {
+        return getElementAmounts().get(element);
+    }
+
+    public void setElementAmount(Element element, int amount) {
+        ElementAmounts amounts = getElementAmounts();
+        amounts.set(element, amount);
+        setElementAmounts(amounts);
+    }
+
+    @Override
     protected void readAdditionalSaveData(ValueInput input) {
         this.setDistortion(input.getIntOr("Distortion", DEFAULT_DISTORTION));
         this.setSubtype(WarpSubtype.byId(input.getStringOr("Subtype", WarpSubtype.STATIC.id())));
         this.setForce(input.getIntOr("Force", DEFAULT_FORCE));
+        this.setElementAmounts(ElementAmounts.read(input));
         this.snappedToBlock = false;
     }
 
@@ -361,6 +396,7 @@ public class WarpEntity extends Entity {
         output.putInt("Distortion", this.getDistortion());
         output.putString("Subtype", this.getSubtype().id());
         output.putInt("Force", this.getForce());
+        this.getElementAmounts().write(output);
     }
 
     @Override

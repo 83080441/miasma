@@ -114,6 +114,7 @@ public class WarpSurfaceFeature extends Feature<NoneFeatureConfiguration> {
         warp.setSubtype(site.subtype());
         warp.setDistortion(site.distortion());
         warp.setForce(site.force());
+        warp.setElementAmounts(site.elements());
         warp.snapToBlockCenter();
 
         return level.addFreshEntity(warp);

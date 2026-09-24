@@ -259,6 +259,8 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-09-23 | Elementos numéricos + mezcla en Warps | `Element.number`; `ElementAmounts`; worldgen + HUD |
+| 2026-09-23 | Sistema Element (fundación: catálogo + API) | `plan/ELEMENT_README.md`; `Element` / `ElementHolder` |
 | 2026-09-22 | Casco Lente Revelador (HUD al mirar Warp) | `revealing_helmet` + `WarpRevealOverlay` |
 | 2026-09-22 | Lift vertical bajo el nodo; onda 14 bloques / 7♥ / cadena | `applyPull` lift mobs; `WarpDeathRipple` 14 / 14HP / chain |
 | 2026-09-22 | Más gravedad en mobs (no escapan caminando); player igual | mob pull 4× + path agresivo/damp; player soft |

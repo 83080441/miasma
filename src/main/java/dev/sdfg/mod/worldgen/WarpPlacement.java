@@ -1,5 +1,6 @@
 package dev.sdfg.mod.worldgen;
 
+import dev.sdfg.mod.element.ElementAmounts;
 import dev.sdfg.mod.entity.WarpSubtype;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -61,8 +62,9 @@ public final class WarpPlacement {
         WarpSubtype subtype = WarpSubtype.byOrdinalSafe(random.nextInt(WarpSubtype.values().length));
         int distortion = 1 + random.nextInt(100);
         int force = 1 + random.nextInt(100);
+        ElementAmounts elements = ElementAmounts.randomForWarp(random);
 
-        return Optional.of(new WarpSite(x, z, subtype, distortion, force));
+        return Optional.of(new WarpSite(x, z, subtype, distortion, force, elements.encode()));
     }
 
     public static int cellCoord(int blockCoord, int regionSize) {
@@ -110,8 +112,24 @@ public final class WarpPlacement {
 
     /**
      * XZ + attributes for a Warp. Y is filled at spawn from the surface heightmap.
+     * {@code elementsEncoded} uses {@link ElementAmounts#encode()} ({@code 1:3,2:1}).
      */
-    public record WarpSite(int x, int z, WarpSubtype subtype, int distortion, int force) {
+    public record WarpSite(
+            int x,
+            int z,
+            WarpSubtype subtype,
+            int distortion,
+            int force,
+            String elementsEncoded
+    ) {
+        public WarpSite {
+            elementsEncoded = elementsEncoded == null ? "" : elementsEncoded;
+        }
+
+        public ElementAmounts elements() {
+            return ElementAmounts.decode(this.elementsEncoded);
+        }
+
         public BlockPos atY(int y) {
             return new BlockPos(this.x, y, this.z);
         }
