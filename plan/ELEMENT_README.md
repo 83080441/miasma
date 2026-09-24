@@ -57,22 +57,86 @@ Al generar el mundo (misma seed → mismos valores): **1–3** elementos distint
 
 ## Casco revelador
 
-Dos capas separadas al mirar un Warp:
+Con el casco puesto **y agachado (shift)**:
 
-1. **Elementos** (bajo el crosshair / nodo): icono 16×16 y debajo la cantidad; solo si > 0.
-2. **Debug** (texto a la derecha): subtype, distortion, force, damage, pos, distance.
+1. **Elementos** (bajo el crosshair): icono 16×16 y cantidad debajo; solo si > 0.
+2. **Debug** (texto a la derecha).
 
-Iconos en `assets/sdfg/textures/gui/element/<id>.png`.
+Sin agacharse, el casco no muestra nada (juego normal).
+
+Origen de los elementos:
+
+| Mirás | Fuente |
+|-------|--------|
+| Warp | mezcla del nodo |
+| Mob | datapack `element/entities/...` |
+| Ítem en el suelo | datapack `element/items/...` |
+| Bloque bajo el crosshair | datapack del ítem de ese bloque |
+
+No revela el ítem de la mano. Sin agacharse, no muestra nada.
+
+---
+
+## Datapack (ítems y mobs)
+
+Defaults editables sin recompilar. Sin archivo = vacío.
+
+### Rutas
+
+- Ítems: `data/sdfg/element/items/<namespace>/<path>.json`  
+  → id `namespace:path` (ej. `items/minecraft/torch.json` → `minecraft:torch`)
+- Entidades: `data/sdfg/element/entities/<namespace>/<path>.json`  
+  → ej. `entities/minecraft/zombie.json` → `minecraft:zombie`
+
+### Formato
+
+```json
+{
+  "elements": {
+    "fire": 40,
+    "light": 15
+  }
+}
+```
+
+Solo keys con cantidad **1–100**. Ids de elemento desconocidos se ignoran (warning en log).
+
+### Ejemplos / cobertura
+
+Hay definiciones generadas para **casi todos los bloques** (ítem de bloque) y **mobs** vanilla:
+
+- `element/items/minecraft/*.json` (~725)
+- `element/entities/minecraft/*.json` (~90 mobs; sin botes, minecarts ni proyectiles)
+
+Cantidades heurísticas (tierra en piedra, fuego/luz en antorchas, water en acuáticos, etc.). Para regenerar tras un update de MC:
+
+```bash
+node tools/generate_element_datapack.js
+```
+
+(requiere fuentes extraídas en `net/minecraft/...` desde el jar `-sources`, ver el script).
+
+Podés editar a mano cualquier JSON; el generador sobrescribe al correrlo.
+
+### API
+
+```java
+ElementLookup.of(stack);           // ItemStack
+ElementLookup.of(Items.TORCH);     // Item
+ElementLookup.of(zombie);          // Entity
+ElementLookup.of(EntityType.ZOMBIE);
+```
+
+Los Warps **no** usan este lookup: llevan `ElementAmounts` en la entidad.
 
 ---
 
 ## Cómo se usa (API)
 
 - `Element.number()` / `Element.byNumber(int)`
-- `ElementAmounts` — get/set/add, encode/decode, `randomForWarp`
+- `ElementAmounts` — get/set/add, encode/decode, `CODEC`, `randomForWarp`
 - `ElementHolder` — `getElement()`, `getElementAmounts()`, `of(...)`
-
-Los Warps implementan `ElementHolder`. Otro contenido del mod puede hacer lo mismo.
+- `ElementLookup` / `ElementDefinitions` — defaults datapack
 
 ---
 
@@ -81,5 +145,5 @@ Los Warps implementan `ElementHolder`. Otro contenido del mod puede hacer lo mis
 - Matriz de afinidades u opuestos
 - Daño elemental, armaduras, pociones
 - Tags `#sdfg:element/...`
-
-Las cantidades ya viven en los nodos; el resto del combate elemental vendrá después.
+- DataComponent / Attachment por instancia
+- Ítems que no son bloque (espadas, comida, etc.) — se pueden agregar igual bajo `element/items/`
