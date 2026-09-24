@@ -1,5 +1,7 @@
 package dev.sdfg.mod;
 
+import dev.sdfg.mod.client.GnomeModel;
+import dev.sdfg.mod.client.GnomeRenderer;
 import dev.sdfg.mod.client.WarpMoteParticle;
 import dev.sdfg.mod.client.WarpSceneCapture;
 import dev.sdfg.mod.client.WarpRenderer;
@@ -33,8 +35,14 @@ public class ExampleModClient {
     }
 
     @SubscribeEvent
+    static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(GnomeModel.LAYER_LOCATION, GnomeModel::createBodyLayer);
+    }
+
+    @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.ENTITY1.get(), WarpRenderer::new);
+        event.registerEntityRenderer(ModEntities.GNOME.get(), GnomeRenderer::new);
     }
 
     @SubscribeEvent

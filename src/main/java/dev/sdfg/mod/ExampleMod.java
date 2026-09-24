@@ -75,6 +75,8 @@ public class ExampleMod {
         ModParticles.PARTICLE_TYPES.register(modEventBus);
         ModWorldGen.FEATURES.register(modEventBus);
 
+        modEventBus.addListener(ModEntities::registerAttributes);
+
         NeoForge.EVENT_BUS.register(this);
 
         modEventBus.addListener(this::addCreative);

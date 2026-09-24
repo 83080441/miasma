@@ -4,6 +4,7 @@ import dev.sdfg.mod.ExampleMod;
 import dev.sdfg.mod.element.Element;
 import dev.sdfg.mod.element.ElementAmounts;
 import dev.sdfg.mod.element.ElementHolder;
+import dev.sdfg.mod.element.ElementLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -208,6 +209,7 @@ public class WarpEntity extends Entity implements ElementHolder {
             // Force gain = victim max HP so Force/10 damage stays coherent with prey size.
             if (!(living instanceof Player) && (living.isDeadOrDying() || !living.isAlive())) {
                 this.addForce(Math.max(1, Math.round(living.getMaxHealth())));
+                this.absorbElementsFrom(ElementLookup.of(living));
                 WarpDeathRipple.spawn(server, this.position());
             }
         }
@@ -291,7 +293,24 @@ public class WarpEntity extends Entity implements ElementHolder {
         ExampleMod.LOGGER.info("item destroy: {}", name);
         // +1 Force per item count absorbed (clamped at MAX_FORCE).
         this.addForce(Math.max(1, stack.getCount()));
+        // +1 of each element the item carried (clamped at ElementAmounts.MAX_AMOUNT).
+        this.absorbElementsFrom(ElementLookup.of(stack));
         item.discard();
+    }
+
+    /**
+     * For every element present on {@code source} (> 0), add +1 to this Warp (cap 100).
+     * Used when absorbing an item or killing a mob.
+     */
+    private void absorbElementsFrom(ElementAmounts source) {
+        if (source == null || source.isEmpty()) {
+            return;
+        }
+        ElementAmounts mine = this.getElementAmounts();
+        for (Element element : source.present()) {
+            mine.add(element, 1);
+        }
+        this.setElementAmounts(mine);
     }
 
     @Override

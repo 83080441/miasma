@@ -127,7 +127,7 @@ ElementLookup.of(zombie);          // Entity
 ElementLookup.of(EntityType.ZOMBIE);
 ```
 
-Los Warps **no** usan este lookup: llevan `ElementAmounts` en la entidad.
+Los Warps llevan `ElementAmounts` en la entidad. Al absorber un ítem o matar un mob ganan **+1** de cada elemento que tenía la presa (vía `ElementLookup`), cap 100.
 
 ---
 

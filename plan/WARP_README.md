@@ -42,6 +42,8 @@ Núcleo compacto con **picos** que salen y se retraen. Cada spike late a su ritm
 
 Todos excepto Static: pozo de **12 bloques** que tira de **ítems, jugadores y mobs**. **Force** (1–100) controla tirón y daño. El tirón sobre vos siempre es **más débil que caminar**, así que podés salir a pie. Al tocar el Warp, los **ítems desaparecen**; vos y los mobs recibís daño **cada segundo**: **medio corazón por cada 10 de Force** (Force 50 → 2½♥/s; Force 100 → 5♥/s). Si el Warp **mata un mob**, emite una **onda oscura** que cae y se esparce lento por el piso (~14 bloques); los mobs que toca reciben **7 corazones**. Si mueren por la onda, sale **otra onda** en cadena.
 
+Al **absorber un ítem** o **matar un mob**, el Warp gana **+1** de cada elemento que tenía la presa (según datapack), hasta **100** por elemento. Al matar un mob también suma Force = vida máxima de la víctima.
+
 ---
 
 ## Efecto Eco
