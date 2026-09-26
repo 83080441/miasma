@@ -1,13 +1,20 @@
 package dev.sdfg.mod;
 
+import dev.sdfg.mod.client.CauldronBubbleParticle;
+import dev.sdfg.mod.client.ElementMoteParticle;
 import dev.sdfg.mod.client.GnomeModel;
 import dev.sdfg.mod.client.GnomeRenderer;
 import dev.sdfg.mod.client.WarpMoteParticle;
 import dev.sdfg.mod.client.WarpSceneCapture;
 import dev.sdfg.mod.client.WarpRenderer;
 import dev.sdfg.mod.entity.ModEntities;
+import dev.sdfg.mod.fluid.ModFluids;
 import dev.sdfg.mod.particle.ModParticles;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockTintSources;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -15,8 +22,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
@@ -48,6 +58,34 @@ public class ExampleModClient {
     @SubscribeEvent
     static void registerParticles(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ModParticles.WARP_MOTE.get(), WarpMoteParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.ELEMENT_MOTE.get(), ElementMoteParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.CAULDRON_BUBBLE.get(), CauldronBubbleParticle.Provider::new);
+    }
+
+    @SubscribeEvent
+    static void registerFluidModels(RegisterFluidModelsEvent event) {
+        FluidModel.Unbaked water = new FluidModel.Unbaked(
+                new Material(Identifier.withDefaultNamespace("block/water_still")),
+                new Material(Identifier.withDefaultNamespace("block/water_flow")),
+                new Material(Identifier.withDefaultNamespace("block/water_overlay")),
+                BlockTintSources.water()
+        );
+        for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
+            event.register(water, liquid.still(), liquid.flowing());
+        }
+    }
+
+    @SubscribeEvent
+    static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+        IClientFluidTypeExtensions waterOverlay = new IClientFluidTypeExtensions() {
+            @Override
+            public Identifier getRenderOverlayTexture(Minecraft mc) {
+                return Identifier.withDefaultNamespace("textures/misc/underwater.png");
+            }
+        };
+        for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
+            event.registerFluidType(waterOverlay, liquid.type().get());
+        }
     }
 
     @SubscribeEvent

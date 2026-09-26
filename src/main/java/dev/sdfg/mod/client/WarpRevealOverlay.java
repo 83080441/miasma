@@ -3,6 +3,8 @@ package dev.sdfg.mod.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.sdfg.mod.block.HeatedCauldronBlock;
+import dev.sdfg.mod.block.HeatedCauldronBlockEntity;
 import dev.sdfg.mod.ExampleMod;
 import dev.sdfg.mod.element.Element;
 import dev.sdfg.mod.element.ElementAmounts;
@@ -22,9 +24,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -38,7 +42,8 @@ import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 /**
  * Revealing Lens HUD: helmet + sneak only.
- * Shows elements for the crosshair target (warp, mob, item entity, or block). Never the held item.
+ * Shows elements for the crosshair target (warp, mob, item entity, block, or fluid).
+ * A bucket in hand is shown when the crosshair has nothing elemental.
  */
 @EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT)
 public final class WarpRevealOverlay {
@@ -72,6 +77,9 @@ public final class WarpRevealOverlay {
 
         RevealTarget target = resolveTarget(player);
         if (target == null) {
+            target = fromHeldBucket(player);
+        }
+        if (target == null) {
             return;
         }
 
@@ -96,7 +104,7 @@ public final class WarpRevealOverlay {
         Entity entity = findLookedEntity(player);
         double entityDist = entity != null ? eye.distanceTo(entity.position()) : Double.POSITIVE_INFINITY;
 
-        HitResult pick = player.pick(REVEAL_RANGE, 1.0F, false);
+        HitResult pick = player.pick(REVEAL_RANGE, 1.0F, true);
         BlockHitResult blockHit = null;
         double blockDist = Double.POSITIVE_INFINITY;
         if (pick instanceof BlockHitResult bhr && bhr.getType() == HitResult.Type.BLOCK) {
@@ -130,16 +138,51 @@ public final class WarpRevealOverlay {
     private static RevealTarget fromBlock(LocalPlayer player, BlockHitResult blockHit) {
         BlockPos pos = blockHit.getBlockPos();
         BlockState state = player.level().getBlockState(pos);
-        Item item = state.getBlock().asItem();
-        if (item == Items.AIR) {
+        if (state.getBlock() instanceof HeatedCauldronBlock) {
+            if (player.level().getBlockEntity(pos) instanceof HeatedCauldronBlockEntity cauldron) {
+                ElementAmounts contents = cauldron.contents();
+                if (!contents.isEmpty()) {
+                    double dist = player.getEyePosition(1.0F).distanceTo(blockHit.getLocation());
+                    return RevealTarget.of("Cauldron", "contents", contents, dist);
+                }
+            }
             return null;
         }
-        ElementAmounts amounts = ElementLookup.of(item);
+        Item item = state.getBlock().asItem();
+        ElementAmounts amounts = item == Items.AIR ? ElementAmounts.empty() : ElementLookup.of(item);
+        if (amounts.isEmpty()) {
+            Item bucket = bucketOf(state.getFluidState());
+            if (bucket != Items.AIR) {
+                item = bucket;
+                amounts = ElementLookup.of(bucket);
+            }
+        }
         if (amounts.isEmpty()) {
             return null;
         }
         double dist = player.getEyePosition(1.0F).distanceTo(blockHit.getLocation());
         return RevealTarget.of("Block Reveal", idOf(item), amounts, dist);
+    }
+
+    /** Main-hand bucket, when the crosshair is not already on something with elements. */
+    private static RevealTarget fromHeldBucket(LocalPlayer player) {
+        ItemStack stack = player.getMainHandItem();
+        if (!(stack.getItem() instanceof BucketItem)) {
+            return null;
+        }
+        ElementAmounts amounts = ElementLookup.of(stack);
+        if (amounts.isEmpty()) {
+            return null;
+        }
+        return RevealTarget.of("Bucket", idOf(stack.getItem()), amounts, 0.0);
+    }
+
+    private static Item bucketOf(FluidState fluid) {
+        if (fluid.isEmpty()) {
+            return Items.AIR;
+        }
+        Item bucket = fluid.getType().getBucket();
+        return bucket == null ? Items.AIR : bucket;
     }
 
     private static void drawWarpDebug(

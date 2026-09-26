@@ -1,0 +1,20 @@
+{
+  "values": [
+    "sdfg:fire",
+    "sdfg:flowing_fire",
+    "sdfg:water",
+    "sdfg:flowing_water",
+    "sdfg:earth",
+    "sdfg:flowing_earth",
+    "sdfg:wind",
+    "sdfg:flowing_wind",
+    "sdfg:light",
+    "sdfg:flowing_light",
+    "sdfg:darkness",
+    "sdfg:flowing_darkness",
+    "sdfg:miasma",
+    "sdfg:flowing_miasma",
+    "sdfg:aether",
+    "sdfg:flowing_aether"
+  ]
+}

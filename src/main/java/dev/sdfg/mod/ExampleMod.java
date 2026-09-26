@@ -28,7 +28,10 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import dev.sdfg.mod.block.HeatedCauldronBlock;
+import dev.sdfg.mod.block.ModBlockEntities;
 import dev.sdfg.mod.entity.ModEntities;
+import dev.sdfg.mod.fluid.ModFluids;
 import dev.sdfg.mod.particle.ModParticles;
 import dev.sdfg.mod.worldgen.ModWorldGen;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -43,6 +46,13 @@ public class ExampleMod {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+
+    public static final DeferredBlock<HeatedCauldronBlock> CAULDRON = BLOCKS.registerBlock(
+            "cauldron",
+            HeatedCauldronBlock::new,
+            HeatedCauldronBlock::cauldronProperties
+    );
+    public static final DeferredItem<BlockItem> CAULDRON_ITEM = ITEMS.registerSimpleBlockItem("cauldron", CAULDRON);
 
     public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", p -> p.mapColor(MapColor.STONE));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
@@ -63,6 +73,10 @@ public class ExampleMod {
             .displayItems((parameters, output) -> {
                 output.accept(EXAMPLE_ITEM.get());
                 output.accept(REVEALING_HELMET.get());
+                output.accept(CAULDRON_ITEM.get());
+                for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
+                    output.accept(liquid.bucket().get());
+                }
             }).build());
 
     public ExampleMod(IEventBus modEventBus, ModContainer modContainer) {
@@ -72,7 +86,10 @@ public class ExampleMod {
         ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModParticles.PARTICLE_TYPES.register(modEventBus);
+        ModFluids.FLUID_TYPES.register(modEventBus);
+        ModFluids.FLUIDS.register(modEventBus);
         ModWorldGen.FEATURES.register(modEventBus);
 
         modEventBus.addListener(ModEntities::registerAttributes);

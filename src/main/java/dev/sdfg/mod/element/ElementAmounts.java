@@ -168,6 +168,32 @@ public final class ElementAmounts {
     }
 
     /**
+     * A present element, chosen at random with weight equal to its amount.
+     * Empty brew → empty.
+     */
+    public Optional<Element> pickWeighted(RandomSource random) {
+        int total = 0;
+        for (int amount : this.amounts) {
+            total += amount;
+        }
+        if (total <= 0) {
+            return Optional.empty();
+        }
+        int pick = random.nextInt(total);
+        for (Element element : Element.values()) {
+            int amount = get(element);
+            if (amount <= 0) {
+                continue;
+            }
+            pick -= amount;
+            if (pick < 0) {
+                return Optional.of(element);
+            }
+        }
+        return primary();
+    }
+
+    /**
      * Element with the highest amount; ties broken by lower {@link Element#number()}.
      */
     public Optional<Element> primary() {
