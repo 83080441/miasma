@@ -1,6 +1,9 @@
 package dev.sdfg.mod;
 
+import java.util.List;
+
 import dev.sdfg.mod.client.CauldronBubbleParticle;
+import dev.sdfg.mod.client.CauldronWaterTint;
 import dev.sdfg.mod.client.ElementMoteParticle;
 import dev.sdfg.mod.client.GnomeModel;
 import dev.sdfg.mod.client.GnomeRenderer;
@@ -11,7 +14,8 @@ import dev.sdfg.mod.entity.ModEntities;
 import dev.sdfg.mod.fluid.ModFluids;
 import dev.sdfg.mod.particle.ModParticles;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.block.BlockTintSources;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.fluid.FluidTintSources;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
@@ -64,15 +68,23 @@ public class ExampleModClient {
 
     @SubscribeEvent
     static void registerFluidModels(RegisterFluidModelsEvent event) {
-        FluidModel.Unbaked water = new FluidModel.Unbaked(
-                new Material(Identifier.withDefaultNamespace("block/water_still")),
-                new Material(Identifier.withDefaultNamespace("block/water_flow")),
-                new Material(Identifier.withDefaultNamespace("block/water_overlay")),
-                BlockTintSources.water()
-        );
+        Material still = new Material(Identifier.withDefaultNamespace("block/water_still"));
+        Material flow = new Material(Identifier.withDefaultNamespace("block/water_flow"));
+        Material overlay = new Material(Identifier.withDefaultNamespace("block/water_overlay"));
         for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
-            event.register(water, liquid.still(), liquid.flowing());
+            FluidModel.Unbaked model = new FluidModel.Unbaked(
+                    still,
+                    flow,
+                    overlay,
+                    FluidTintSources.constant(0xFF000000 | liquid.element().color())
+            );
+            event.register(model, liquid.still(), liquid.flowing());
         }
+    }
+
+    @SubscribeEvent
+    static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
+        event.register(List.of(CauldronWaterTint.INSTANCE), ExampleMod.CAULDRON.get());
     }
 
     @SubscribeEvent

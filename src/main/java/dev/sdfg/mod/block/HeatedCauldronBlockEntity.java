@@ -109,6 +109,11 @@ public class HeatedCauldronBlockEntity extends BlockEntity {
         super.loadAdditional(input);
         this.contents = ElementAmounts.read(input);
         this.sealed = input.getBooleanOr("Sealed", false);
+        Level level = this.level;
+        if (level != null && level.isClientSide()) {
+            BlockState state = this.getBlockState();
+            level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_CLIENTS);
+        }
     }
 
     @Override

@@ -12,8 +12,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 
 /**
- * Finite water-look fluid for one pure element. The body is untinted water;
- * motes use {@link Element#color()}.
+ * Finite water-look fluid for one pure element. The body and motes use {@link Element#color()}.
  */
 public abstract class PureElementFluid extends BaseFlowingFluid {
     private final Element element;

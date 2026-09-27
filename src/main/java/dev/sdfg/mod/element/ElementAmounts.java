@@ -168,6 +168,32 @@ public final class ElementAmounts {
     }
 
     /**
+     * Weighted mix of present element colors as {@code 0xAARRGGBB}.
+     * Empty brew uses {@link Element#WATER}.
+     */
+    public int blendColor() {
+        int total = 0;
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+        for (Element element : Element.values()) {
+            int amount = get(element);
+            if (amount <= 0) {
+                continue;
+            }
+            int color = element.color();
+            red += ((color >> 16) & 0xFF) * amount;
+            green += ((color >> 8) & 0xFF) * amount;
+            blue += (color & 0xFF) * amount;
+            total += amount;
+        }
+        if (total <= 0) {
+            return 0xFF000000 | Element.WATER.color();
+        }
+        return 0xFF000000 | ((red / total) << 16) | ((green / total) << 8) | (blue / total);
+    }
+
+    /**
      * A present element, chosen at random with weight equal to its amount.
      * Empty brew → empty.
      */
