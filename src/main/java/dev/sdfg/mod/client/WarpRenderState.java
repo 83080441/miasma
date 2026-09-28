@@ -19,4 +19,9 @@ public class WarpRenderState extends EntityRenderState {
     /** Screen UV of the active node center when drawing. */
     public float nodeCenterU = 0.5F;
     public float nodeCenterV = 0.5F;
+
+    /** Spyglass is pointed at this warp. */
+    public boolean showDiscovery;
+    /** Primary element color as {@code 0xAARRGGBB}. */
+    public int discoveryColor;
 }

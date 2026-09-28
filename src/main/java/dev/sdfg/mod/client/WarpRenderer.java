@@ -1,15 +1,24 @@
 package dev.sdfg.mod.client;
 
+import dev.sdfg.mod.ExampleMod;
+import dev.sdfg.mod.element.ElementDiscovery;
 import dev.sdfg.mod.entity.WarpEntity;
 import dev.sdfg.mod.entity.WarpSubtype;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -20,6 +29,11 @@ public class WarpRenderer extends EntityRenderer<WarpEntity, WarpRenderState> {
     private static final float BINARY_NODE_SCALE = 0.2F;
     /** Orbit radius so both nodes stay inside the same 1×1. */
     private static final float BINARY_ORBIT_RADIUS = 0.25F;
+    /** Discovery square, in blocks. */
+    private static final float DISCOVERY_SIZE = 0.20F;
+    private static final RenderType DISCOVERY_RENDER_TYPE = RenderTypes.entityTranslucentEmissive(
+            Identifier.fromNamespaceAndPath(ExampleMod.MODID, "textures/misc/white.png")
+    );
 
     public WarpRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -36,7 +50,52 @@ public class WarpRenderer extends EntityRenderer<WarpEntity, WarpRenderState> {
             WarpRenderHelper.submitWarpDisc(poseStack, collector, state);
             poseStack.popPose();
         }
+        if (state.showDiscovery) {
+            submitDiscoverySquare(state, poseStack, collector);
+        }
         super.submit(state, poseStack, collector, camera);
+    }
+
+    /** Colored square in the nucleus: it spins and drifts while the spyglass is on this warp. */
+    private static void submitDiscoverySquare(WarpRenderState state, PoseStack poseStack, SubmitNodeCollector collector) {
+        float t = state.ageInTicks;
+        float half = DISCOVERY_SIZE * 0.5F;
+        float ox = 0.10F * Mth.sin(t * 0.05F);
+        float oy = 0.07F * Mth.sin(t * 0.07F + 1.3F);
+        float oz = 0.10F * Mth.cos(t * 0.04F);
+        int color = state.discoveryColor;
+        float r = ((color >> 16) & 0xFF) / 255.0F;
+        float g = ((color >> 8) & 0xFF) / 255.0F;
+        float b = (color & 0xFF) / 255.0F;
+
+        poseStack.pushPose();
+        poseStack.translate(ox, oy, oz);
+        poseStack.mulPose(Axis.YP.rotation(t * 0.04F));
+        poseStack.mulPose(Axis.XP.rotation(t * 0.03F));
+        collector.submitCustomGeometry(poseStack, DISCOVERY_RENDER_TYPE, (pose, buffer) -> {
+            quad(buffer, pose, -half, -half, half, half, 0.0F, r, g, b, 1.0F);
+            quad(buffer, pose, half, -half, -half, half, -0.001F, r, g, b, -1.0F);
+        });
+        poseStack.popPose();
+    }
+
+    private static void quad(
+            VertexConsumer buffer,
+            PoseStack.Pose pose,
+            float x0,
+            float y0,
+            float x1,
+            float y1,
+            float z,
+            float r,
+            float g,
+            float b,
+            float normalZ
+    ) {
+        buffer.addVertex(pose, x0, y0, z).setColor(r, g, b, 1.0F).setUv(0.0F, 1.0F).setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0).setNormal(pose, 0.0F, 0.0F, normalZ);
+        buffer.addVertex(pose, x1, y0, z).setColor(r, g, b, 1.0F).setUv(1.0F, 1.0F).setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0).setNormal(pose, 0.0F, 0.0F, normalZ);
+        buffer.addVertex(pose, x1, y1, z).setColor(r, g, b, 1.0F).setUv(1.0F, 0.0F).setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0).setNormal(pose, 0.0F, 0.0F, normalZ);
+        buffer.addVertex(pose, x0, y1, z).setColor(r, g, b, 1.0F).setUv(0.0F, 0.0F).setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0).setNormal(pose, 0.0F, 0.0F, normalZ);
     }
 
     private void submitBinary(WarpRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
@@ -164,6 +223,16 @@ public class WarpRenderer extends EntityRenderer<WarpEntity, WarpRenderState> {
         float approx = (size * 0.55F) / distance;
         state.radiusUv = Mth.clamp(approx * 0.55F, 0.015F, 0.18F);
         state.warpScale = size;
+
+        state.showDiscovery = false;
+        state.discoveryColor = 0;
+        Player player = minecraft.player;
+        if (player != null && player.isScoping() && ElementDiscovery.lookedWarp(player) == entity) {
+            entity.getElement().ifPresent(element -> {
+                state.showDiscovery = true;
+                state.discoveryColor = 0xFF000000 | element.color();
+            });
+        }
     }
 
     @Override

@@ -22,6 +22,16 @@
   "item.sdfg.aether_bucket": "Aether puro",
   "block.sdfg.cauldron": "Caldero",
 
+  "element.sdfg.fire": "Fuego",
+  "element.sdfg.water": "Agua",
+  "element.sdfg.earth": "Tierra",
+  "element.sdfg.wind": "Viento",
+  "element.sdfg.light": "Luz",
+  "element.sdfg.darkness": "Oscuridad",
+  "element.sdfg.miasma": "Miasma",
+  "element.sdfg.aether": "Aether",
+  "sdfg.discovery.found": "Descubriste %s",
+
   "entity.sdfg.entity1": "Warp",
   "entity.sdfg.gnome": "Gnome",
 

@@ -30,6 +30,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import dev.sdfg.mod.block.HeatedCauldronBlock;
 import dev.sdfg.mod.block.ModBlockEntities;
+import dev.sdfg.mod.element.ElementDiscovery;
 import dev.sdfg.mod.entity.ModEntities;
 import dev.sdfg.mod.fluid.ModFluids;
 import dev.sdfg.mod.particle.ModParticles;
@@ -91,6 +92,7 @@ public class ExampleMod {
         ModFluids.FLUID_TYPES.register(modEventBus);
         ModFluids.FLUIDS.register(modEventBus);
         ModWorldGen.FEATURES.register(modEventBus);
+        ElementDiscovery.ATTACHMENT_TYPES.register(modEventBus);
 
         modEventBus.addListener(ModEntities::registerAttributes);
 
