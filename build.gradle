@@ -145,6 +145,27 @@ tasks.register('prepareTestWorld', Copy) {
     }
 }
 
+tasks.register('forceFullscreen') {
+    def optionsFile = layout.projectDirectory.file('run/options.txt')
+    outputs.upToDateWhen { false }
+    doLast {
+        def file = optionsFile.asFile
+        file.parentFile.mkdirs()
+        if (!file.exists()) {
+            file.text = 'fullscreen:true\n'
+            return
+        }
+        def text = file.getText('UTF-8')
+        def updated = text.contains('fullscreen:')
+                ? text.replaceFirst(/fullscreen:(true|false)/, 'fullscreen:true')
+                : text + (text.endsWith('\n') ? '' : '\n') + 'fullscreen:true\n'
+        if (updated != text) {
+            file.setText(updated, 'UTF-8')
+        }
+        logger.lifecycle('runClient will start fullscreen')
+    }
+}
+
 tasks.named('runClient').configure {
-    dependsOn 'prepareTestWorld'
+    dependsOn 'prepareTestWorld', 'forceFullscreen'
 }
