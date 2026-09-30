@@ -1,0 +1,28 @@
+{
+  "parent": "sdfg:progress/root",
+  "display": {
+    "icon": {
+      "id": "sdfg:water_bucket"
+    },
+    "title": {
+      "translate": "element.sdfg.water"
+    },
+    "description": {
+      "translate": "advancements.sdfg.progress.element.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "discover": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "discover"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

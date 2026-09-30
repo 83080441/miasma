@@ -46,6 +46,9 @@ Paquete ya alineado: `dev.sdfg.mod` / namespace `sdfg`. Si el destino usa otro i
 | `entity/ModEntities.java` | DeferredRegister: solo `entity1` → `WarpEntity` |
 | `particle/ModParticles.java` | DeferredRegister: `warp_mote` (`SimpleParticleType`) |
 | Registro en clase principal del mod | `ENTITY_TYPES.register(bus)` + `PARTICLE_TYPES.register(bus)` |
+| `element/ElementDiscovery.java` | Elementos descubiertos; otorga `progress/root` (acercarse) y `progress/<elemento>` al mirar ese primario con el catalejo |
+| `data/<modid>/advancement/progress/root.json` | Raíz de la pestaña de logros (fondo End, `minecraft:impossible`) |
+| `data/<modid>/advancement/progress/<elemento>.json` | Un logro por elemento (fuego…aether), hijo de la raíz, icono del balde puro |
 
 ### Client-only
 
@@ -207,7 +210,8 @@ Checklist visual:
 - [ ] Al tocar: ítem desaparece; living reciben daño cada 1s (Force 50 → 2.5♥/s; Force 100 → 5♥/s)
 - [ ] Mundo nuevo: Warps escasos en superficie Overworld
 - [ ] Misma seed → mismos XZ (`/warplocate` coincide)
-- [ ] Matar Warp → no reaparece al reexplorar el chunk
+- [ ] Acercarse a un Warp (<12 bloques) desbloquea la pestaña de logros
+- [ ] Con el catalejo, el elemento primario de ese Warp desbloquea su propio logro
 
 ---
 
@@ -228,7 +232,11 @@ src/main/java/dev/sdfg/mod/
     ModWorldGen.java           # DeferredRegister FEATURE
   particle/
     ModParticles.java
+  element/
+    ElementDiscovery.java      # attachment + progress/root y progress/<elemento>
   resources/data/sdfg/
+    advancement/progress/root.json
+    advancement/progress/<elemento>.json
     worldgen/configured_feature/warp_surface.json
     worldgen/placed_feature/warp_surface.json
     neoforge/biome_modifier/add_warp_surface.json
@@ -259,6 +267,8 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-09-30 | Un logro por elemento descubierto con el catalejo | `progress/<id>` (8); se quita `base_element` |
+| 2026-09-30 | Pestaña de logros Warp (acercarse + elemento base) | `data/sdfg/advancement/progress/`; `ElementDiscovery` otorga `approach` y `discover` |
 | 2026-09-28 | Núcleo otra vez 6× menor que la cáscara; órbita amplia | `core = shell / 6`; radio de órbita 0.55 |
 | 2026-09-28 | Cáscara del elemento 3× más chica | `SHELL_SHRINK = 3`; el núcleo End no cambia |
 | 2026-09-28 | `runClient` siempre en pantalla completa | `forceFullscreen` pone `fullscreen:true` en `run/options.txt` |

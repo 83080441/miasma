@@ -10,9 +10,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.sdfg.mod.ExampleMod;
 import dev.sdfg.mod.entity.WarpEntity;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -34,6 +38,8 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 public final class ElementDiscovery {
     /** Same reach as the revealing helmet. */
     public static final double LOOK_RANGE = 48.0;
+
+    private static final Identifier APPROACH_WARP = Identifier.fromNamespaceAndPath(ExampleMod.MODID, "progress/root");
 
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, ExampleMod.MODID);
@@ -83,10 +89,16 @@ public final class ElementDiscovery {
     @SubscribeEvent
     static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
-        if (player.level().isClientSide() || !player.isScoping()) {
+        if (player.level().isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        WarpEntity warp = lookedWarp(player);
+        if (serverPlayer.level() instanceof ServerLevel level) {
+            tryApproach(serverPlayer, level);
+        }
+        if (!serverPlayer.isScoping()) {
+            return;
+        }
+        WarpEntity warp = lookedWarp(serverPlayer);
         if (warp == null) {
             return;
         }
@@ -95,15 +107,49 @@ public final class ElementDiscovery {
             return;
         }
         Element element = primary.get();
-        DiscoveredSet current = of(player);
+        award(serverPlayer, Identifier.fromNamespaceAndPath(ExampleMod.MODID, "progress/" + element.id()), "discover");
+        DiscoveredSet current = of(serverPlayer);
         if (current.knows(element)) {
             return;
         }
-        player.setData(DISCOVERED, current.with(element));
-        player.syncData(DISCOVERED);
-        player.sendOverlayMessage(
+        serverPlayer.setData(DISCOVERED, current.with(element));
+        serverPlayer.syncData(DISCOVERED);
+        serverPlayer.sendOverlayMessage(
                 Component.translatable("sdfg.discovery.found", Component.translatable("element.sdfg." + element.id()))
         );
+    }
+
+    /** Approaching any living Warp within {@link WarpEntity#PULL_RANGE} unlocks the progress tab. */
+    private static void tryApproach(ServerPlayer player, ServerLevel level) {
+        if (alreadyDone(player, APPROACH_WARP)) {
+            return;
+        }
+        AABB search = player.getBoundingBox().inflate(WarpEntity.PULL_RANGE);
+        for (WarpEntity warp : level.getEntitiesOfClass(WarpEntity.class, search)) {
+            if (warp.isAlive() && warp.distanceTo(player) <= WarpEntity.PULL_RANGE) {
+                award(player, APPROACH_WARP, "approach");
+                return;
+            }
+        }
+    }
+
+    private static boolean alreadyDone(ServerPlayer player, Identifier id) {
+        AdvancementHolder holder = holder(player, id);
+        return holder != null && player.getAdvancements().getOrStartProgress(holder).isDone();
+    }
+
+    private static void award(ServerPlayer player, Identifier id, String criterion) {
+        AdvancementHolder holder = holder(player, id);
+        if (holder != null) {
+            player.getAdvancements().award(holder, criterion);
+        }
+    }
+
+    private static AdvancementHolder holder(ServerPlayer player, Identifier id) {
+        if (!(player.level() instanceof ServerLevel level)) {
+            return null;
+        }
+        return level.getServer().getAdvancements().get(id);
     }
 
     /** Bitmask of known elements. Bit {@code number - 1}. Empty is a new player. */

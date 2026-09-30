@@ -32,6 +32,10 @@
   "element.sdfg.aether": "Aether",
   "sdfg.discovery.found": "Discovered %s",
 
+  "advancements.sdfg.progress.root.title": "A Warp",
+  "advancements.sdfg.progress.root.description": "Walk up to a Warp",
+  "advancements.sdfg.progress.element.description": "Look at a Warp through the spyglass whose base element is this one",
+
   "entity.sdfg.entity1": "Warp",
   "entity.sdfg.gnome": "Gnome",
 

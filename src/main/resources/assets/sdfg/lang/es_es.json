@@ -32,6 +32,10 @@
   "element.sdfg.aether": "Aether",
   "sdfg.discovery.found": "Descubriste %s",
 
+  "advancements.sdfg.progress.root.title": "Un Warp",
+  "advancements.sdfg.progress.root.description": "Acércate a un Warp",
+  "advancements.sdfg.progress.element.description": "Mira un Warp con el catalejo cuyo elemento base sea este",
+
   "entity.sdfg.entity1": "Warp",
   "entity.sdfg.gnome": "Gnome",
 
