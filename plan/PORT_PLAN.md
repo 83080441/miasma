@@ -267,6 +267,7 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-09-30 | Visor: icono solo del elemento descubierto; el resto ofuscado | `WarpRevealOverlay` usa `ChatFormatting.OBFUSCATED` en vez del PNG y el número |
 | 2026-09-30 | Un logro por elemento descubierto con el catalejo | `progress/<id>` (8); se quita `base_element` |
 | 2026-09-30 | Pestaña de logros Warp (acercarse + elemento base) | `data/sdfg/advancement/progress/`; `ElementDiscovery` otorga `approach` y `discover` |
 | 2026-09-28 | Núcleo otra vez 6× menor que la cáscara; órbita amplia | `core = shell / 6`; radio de órbita 0.55 |

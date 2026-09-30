@@ -1,15 +1,14 @@
 package dev.sdfg.mod.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dev.sdfg.mod.block.HeatedCauldronBlock;
 import dev.sdfg.mod.block.HeatedCauldronBlockEntity;
 import dev.sdfg.mod.ExampleMod;
 import dev.sdfg.mod.element.Element;
 import dev.sdfg.mod.element.ElementAmounts;
+import dev.sdfg.mod.element.ElementDiscovery;
 import dev.sdfg.mod.element.ElementLookup;
 import dev.sdfg.mod.entity.WarpEntity;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -94,7 +93,7 @@ public final class WarpRevealOverlay {
         } else {
             drawSimpleDebug(gui, font, debugX, centerY - 24, target);
         }
-        drawElementStrip(gui, font, centerX, centerY + ELEMENT_Y_OFFSET, target.amounts());
+        drawElementStrip(gui, font, centerX, centerY + ELEMENT_Y_OFFSET, target.amounts(), player);
     }
 
     /** Entity wins if closer than the block hit; otherwise the looked-at block. */
@@ -213,47 +212,66 @@ public final class WarpRevealOverlay {
         drawLine(gui, font, x, y, "Distance", String.format("%.1f", target.distance()));
     }
 
-    private static void drawElementStrip(GuiGraphicsExtractor gui, Font font, int centerX, int topY, ElementAmounts amounts) {
+    private static void drawElementStrip(
+            GuiGraphicsExtractor gui,
+            Font font,
+            int centerX,
+            int topY,
+            ElementAmounts amounts,
+            LocalPlayer player
+    ) {
         if (amounts == null || amounts.isEmpty()) {
             return;
         }
 
-        List<Element> present = new ArrayList<>(8);
-        for (Element element : Element.values()) {
-            if (amounts.get(element) > 0) {
-                present.add(element);
+        Element[] catalog = Element.values();
+        Component hidden = Component.literal("?").withStyle(ChatFormatting.OBFUSCATED);
+        int hiddenWidth = font.width(hidden);
+
+        int slotWidth = Math.max(ICON_SIZE, hiddenWidth);
+        for (Element element : catalog) {
+            if (showRevealed(player, amounts, element)) {
+                slotWidth = Math.max(slotWidth, font.width(String.valueOf(amounts.get(element))));
             }
         }
-        if (present.isEmpty()) {
-            return;
-        }
 
-        int slotWidth = ICON_SIZE;
-        for (Element element : present) {
-            slotWidth = Math.max(slotWidth, font.width(String.valueOf(amounts.get(element))));
-        }
-
-        int totalWidth = present.size() * slotWidth + (present.size() - 1) * SLOT_GAP;
+        int totalWidth = catalog.length * slotWidth + (catalog.length - 1) * SLOT_GAP;
         int x = centerX - totalWidth / 2;
 
-        for (Element element : present) {
-            int amount = amounts.get(element);
-            gui.blit(
-                    RenderPipelines.GUI_TEXTURED,
-                    element.iconTexture(),
-                    x + (slotWidth - ICON_SIZE) / 2,
-                    topY,
-                    0.0F,
-                    0.0F,
-                    ICON_SIZE,
-                    ICON_SIZE,
-                    ICON_TEX,
-                    ICON_TEX
-            );
-            String label = String.valueOf(amount);
-            gui.text(font, label, x + (slotWidth - font.width(label)) / 2, topY + ICON_SIZE + AMOUNT_GAP, AMOUNT_COLOR, true);
+        for (Element element : catalog) {
+            if (showRevealed(player, amounts, element)) {
+                int amount = amounts.get(element);
+                gui.blit(
+                        RenderPipelines.GUI_TEXTURED,
+                        element.iconTexture(),
+                        x + (slotWidth - ICON_SIZE) / 2,
+                        topY,
+                        0.0F,
+                        0.0F,
+                        ICON_SIZE,
+                        ICON_SIZE,
+                        ICON_TEX,
+                        ICON_TEX
+                );
+                String label = String.valueOf(amount);
+                gui.text(font, label, x + (slotWidth - font.width(label)) / 2, topY + ICON_SIZE + AMOUNT_GAP, AMOUNT_COLOR, true);
+            } else {
+                gui.text(
+                        font,
+                        hidden,
+                        x + (slotWidth - hiddenWidth) / 2,
+                        topY + (ICON_SIZE - font.lineHeight) / 2,
+                        AMOUNT_COLOR,
+                        true
+                );
+            }
             x += slotWidth + SLOT_GAP;
         }
+    }
+
+    /** Icon and amount only when this element is on the target and the player has already discovered it. */
+    private static boolean showRevealed(LocalPlayer player, ElementAmounts amounts, Element element) {
+        return amounts.get(element) > 0 && ElementDiscovery.knows(player, element);
     }
 
     private static int drawLine(GuiGraphicsExtractor gui, Font font, int x, int y, String label, String value) {
