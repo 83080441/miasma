@@ -223,6 +223,8 @@ Checklist visual:
 - [ ] Tubería de paso cerrada corta el camino; clic derecho la abre y el elemento vuelve a pasar
 - [ ] El contenedor de vidrio muestra el líquido: sube con la cantidad y se tiñe con la mezcla
 - [ ] Clic derecho en el vidrio: un vial vacío saca hasta 100, en la proporción de la mezcla
+- [ ] Con el casco, al mirar un bloque solo aparecen los elementos que tiene; el que no está no deja un `?`
+- [ ] Con la varita, la fila solo muestra elementos conocidos del 3×3×3; uno desconocido no deja un `?`
 - [ ] `/element unlock 1` descubre los 8 elementos actuales; `/element unlock 2` avisa que ese nivel no existe
 
 ---
@@ -253,6 +255,8 @@ src/main/java/dev/sdfg/mod/
     ValvePipeBlock.java         # open/closed; cerrada no deja pasar
     ElementContainerBlock.java # vidrio
     PipeNetwork.java
+  item/
+    WandItem.java              # palo; sin receta; suma ítems sueltos del 3×3×3
   resources/data/sdfg/
     advancement/progress/root.json
     advancement/progress/<elemento>.json
@@ -269,6 +273,8 @@ src/main/java/dev/sdfg/mod/
     WarpEchoState.java
     WarpEchoSoundInstance.java
     WarpEchoSounds.java
+    WandOverlay.java           # fila de ElementStripHud con la suma del 3×3×3
+    ElementStripHud.java       # fila compartida de icono + cantidad
 src/main/resources/assets/sdfg/particles/warp_mote.json
 ```
 
@@ -287,6 +293,10 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-01 | No mostrar `?` de elementos que no están; la varita omite los que no conoces | `ElementStripHud` solo pinta lo presente; la varita, solo lo descubierto |
+| 2026-10-01 | La varita se ve en el centro, como el casco | Columna bajo la mira; icono del visor bajo cada total; el mayor en dorado |
+| 2026-10-01 | El arranque marca error por `@OnlyIn` en el tinte del vial | Se quita la anotación de `VialTint`; el codec sigue siendo solo de cliente |
+| 2026-10-01 | Varita (palo) que muestra el bloque y los elementos de alrededor | `sdfg:wand` sin receta; columna en `WandOverlay`; ítems sueltos del 3×3×3 |
 | 2026-10-01 | El vial se tiñe con la mezcla, como los cubos | Capa de líquido blanca × `blendColor` (`sdfg:vial`) |
 | 2026-10-01 | Vial con corcho que saca 100 en proporción | Clic derecho en el vidrio; `sdfg:vial`; 100:100:50 → 40/40/20 |
 | 2026-10-01 | El contenedor muestra el líquido de lo que guarda | `level` 0–4; agua teñida con la mezcla (`ElementContainerTint`) |

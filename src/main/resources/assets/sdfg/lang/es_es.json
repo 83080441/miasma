@@ -26,6 +26,7 @@
   "block.sdfg.element_valve": "Tubería de paso",
   "block.sdfg.element_container": "Contenedor",
   "item.sdfg.vial": "Vial",
+  "item.sdfg.wand": "Varita",
 
   "element.sdfg.fire": "Fuego",
   "element.sdfg.water": "Agua",

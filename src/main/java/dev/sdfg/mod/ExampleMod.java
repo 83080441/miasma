@@ -39,6 +39,7 @@ import dev.sdfg.mod.element.ElementDiscovery;
 import dev.sdfg.mod.inventory.VialMenu;
 import dev.sdfg.mod.item.ModDataComponents;
 import dev.sdfg.mod.item.VialItem;
+import dev.sdfg.mod.item.WandItem;
 import dev.sdfg.mod.entity.ModEntities;
 import dev.sdfg.mod.fluid.ModFluids;
 import dev.sdfg.mod.particle.ModParticles;
@@ -101,6 +102,9 @@ public class ExampleMod {
     /** Corked vial. Holds up to 100 of a container's mix. No recipe yet. */
     public static final DeferredItem<VialItem> VIAL = ITEMS.registerItem("vial", VialItem::new);
 
+    /** Stick-shaped wand. No recipe. Reads the 3×3×3 of loose items around the holder. */
+    public static final DeferredItem<WandItem> WAND = ITEMS.registerItem("wand", WandItem::new);
+
     public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", p -> p.mapColor(MapColor.STONE));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
 
@@ -126,6 +130,7 @@ public class ExampleMod {
                 output.accept(VALVE_PIPE_ITEM.get());
                 output.accept(ELEMENT_CONTAINER_ITEM.get());
                 output.accept(VIAL.get());
+                output.accept(WAND.get());
                 for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
                     output.accept(liquid.bucket().get());
                 }

@@ -26,6 +26,7 @@
   "block.sdfg.element_valve": "Valve Pipe",
   "block.sdfg.element_container": "Container",
   "item.sdfg.vial": "Vial",
+  "item.sdfg.wand": "Wand",
 
   "element.sdfg.fire": "Fire",
   "element.sdfg.water": "Water",

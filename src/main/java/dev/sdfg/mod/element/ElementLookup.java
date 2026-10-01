@@ -7,6 +7,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 
 /**
  * Resolves {@link ElementAmounts} for items and entity types from datapack defaults.
@@ -25,6 +28,27 @@ public final class ElementLookup {
             return carried;
         }
         return of(stack.getItem());
+    }
+
+    /**
+     * Same reading the revealing helmet uses on a looked-at block:
+     * the block's item, or the bucket of its fluid when the block itself has none.
+     */
+    public static ElementAmounts of(BlockState state) {
+        if (state == null) {
+            return ElementAmounts.empty();
+        }
+        Item item = state.getBlock().asItem();
+        ElementAmounts amounts = item == Items.AIR ? ElementAmounts.empty() : of(item);
+        if (!amounts.isEmpty()) {
+            return amounts;
+        }
+        FluidState fluid = state.getFluidState();
+        if (fluid.isEmpty()) {
+            return ElementAmounts.empty();
+        }
+        Item bucket = fluid.getType().getBucket();
+        return bucket == null || bucket == Items.AIR ? ElementAmounts.empty() : of(bucket);
     }
 
     public static ElementAmounts of(Item item) {
