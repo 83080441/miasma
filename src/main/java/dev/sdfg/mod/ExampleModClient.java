@@ -4,7 +4,12 @@ import java.util.List;
 
 import dev.sdfg.mod.client.CauldronBubbleParticle;
 import dev.sdfg.mod.client.CauldronWaterTint;
+import dev.sdfg.mod.client.DrainWash;
+import dev.sdfg.mod.item.WandChannel;
+import dev.sdfg.mod.client.DrainWashParticle;
+import dev.sdfg.mod.client.ElementArrowRenderer;
 import dev.sdfg.mod.client.ElementContainerTint;
+import dev.sdfg.mod.client.FlightMoteParticle;
 import dev.sdfg.mod.client.ElementMoteParticle;
 import dev.sdfg.mod.client.GnomeModel;
 import dev.sdfg.mod.client.GnomeRenderer;
@@ -17,6 +22,11 @@ import dev.sdfg.mod.entity.ModEntities;
 import dev.sdfg.mod.fluid.ModFluids;
 import dev.sdfg.mod.particle.ModParticles;
 import net.minecraft.client.Minecraft;
+import dev.sdfg.mod.client.ChannelInputLock;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.fluid.FluidTintSources;
@@ -61,6 +71,7 @@ public class ExampleModClient {
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.ENTITY1.get(), WarpRenderer::new);
         event.registerEntityRenderer(ModEntities.GNOME.get(), GnomeRenderer::new);
+        event.registerEntityRenderer(ModEntities.ELEMENT_ARROW.get(), ElementArrowRenderer::new);
     }
 
     @SubscribeEvent
@@ -68,6 +79,8 @@ public class ExampleModClient {
         event.registerSpriteSet(ModParticles.WARP_MOTE.get(), WarpMoteParticle.Provider::new);
         event.registerSpriteSet(ModParticles.ELEMENT_MOTE.get(), ElementMoteParticle.Provider::new);
         event.registerSpriteSet(ModParticles.CAULDRON_BUBBLE.get(), CauldronBubbleParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.FLIGHT_MOTE.get(), FlightMoteParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.DRAIN_WASH.get(), DrainWashParticle.Provider::new);
     }
 
     @SubscribeEvent
@@ -113,6 +126,44 @@ public class ExampleModClient {
         for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
             event.registerFluidType(waterOverlay, liquid.type().get());
         }
+    }
+
+    /** Spot where this client started the channel. The server keeps the same lock on its own copy. */
+    private static Vec3 channelAnchor;
+
+    @SubscribeEvent
+    static void lockChannelInput(MovementInputUpdateEvent event) {
+        Player player = event.getEntity();
+        if (!player.isUsingItem() || !player.getUseItem().is(ExampleMod.WAND.get())) {
+            channelAnchor = null;
+            return;
+        }
+        if (channelAnchor == null) {
+            channelAnchor = player.position();
+        }
+        ChannelInputLock.stop(event.getInput());
+    }
+
+    @SubscribeEvent
+    static void afterLocalPlayerTick(PlayerTickEvent.Post event) {
+        Player player = event.getEntity();
+        if (!player.level().isClientSide() || player != Minecraft.getInstance().player) {
+            return;
+        }
+        DrainWash.tick(player);
+        if (!Minecraft.getInstance().options.keyUse.isDown()) {
+            WandChannel.noteReleased(player);
+        }
+        if (channelAnchor == null) {
+            return;
+        }
+        if (!player.isUsingItem() || !player.getUseItem().is(ExampleMod.WAND.get())) {
+            channelAnchor = null;
+            return;
+        }
+        player.setDeltaMovement(Vec3.ZERO);
+        player.setPos(channelAnchor.x, channelAnchor.y, channelAnchor.z);
+        player.resetFallDistance();
     }
 
     @SubscribeEvent

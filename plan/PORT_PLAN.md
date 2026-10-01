@@ -225,6 +225,12 @@ Checklist visual:
 - [ ] Clic derecho en el vidrio: un vial vacío saca hasta 100, en la proporción de la mezcla
 - [ ] Con el casco, al mirar un bloque solo aparecen los elementos que tiene; el que no está no deja un `?`
 - [ ] Con la varita, la fila solo muestra elementos conocidos del 3×3×3; uno desconocido no deja un `?`
+- [ ] El pergamino Bolt usa la página en blanco y su línea dice los elementos tierra, fuego y agua
+- [ ] Clic derecho con la varita y Bolt en la casilla 1, 2 o 3: 3 s quieto; soltar no devuelve lo ya comido y no tira flechas
+- [ ] Cada segundo resta 10 de cada elemento del pergamino, en orden al azar y de bloques al azar del 3×3×3
+- [ ] Si el bloque se queda sin elementos, pasa a aire y suelta motas de ese color hacia la varita
+- [ ] El bloque que aún tiene otros elementos suelta motas grises según lo que perdió, y la fila de la varita muestra lo que queda
+- [ ] Al cumplir los 3 s salen 3 flechas, una cada 0,5 s, y después de eso no se absorbe más
 - [ ] `/element unlock 1` descubre los 8 elementos actuales; `/element unlock 2` avisa que ese nivel no existe
 
 ---
@@ -241,6 +247,7 @@ src/main/java/dev/sdfg/mod/
     WarpEntity.java
     WarpSubtype.java
     ModEntities.java
+    ElementArrow.java          # flecha del pergamino; no se recoge; deja motas
   worldgen/
     WarpPlacement.java         # fórmula seed → sitio
     WarpSurfaceFeature.java    # spawn superficie
@@ -249,6 +256,7 @@ src/main/java/dev/sdfg/mod/
     ModParticles.java
   element/
     ElementDiscovery.java      # attachment + progress/root y progress/<elemento>
+    BlockResidue.java          # lo que quedó en cada bloque, en el chunk
   block/
     CauldronLidBlock.java      # tapa (tolva); saca un elemento al azar
     ElementPipeBlock.java
@@ -256,7 +264,9 @@ src/main/java/dev/sdfg/mod/
     ElementContainerBlock.java # vidrio
     PipeNetwork.java
   item/
-    WandItem.java              # palo; sin receta; suma ítems sueltos del 3×3×3
+    WandItem.java              # palo; sin receta; suma lo que queda del 3×3×3; canaliza 3 s
+    WandChannel.java           # cada segundo 10 al azar; 3 flechas al terminar; luego no absorbe
+    ScrollItem.java            # pergaminos; bolt pide tierra, fuego y agua
   resources/data/sdfg/
     advancement/progress/root.json
     advancement/progress/<elemento>.json
@@ -273,7 +283,10 @@ src/main/java/dev/sdfg/mod/
     WarpEchoState.java
     WarpEchoSoundInstance.java
     WarpEchoSounds.java
-    WandOverlay.java           # fila de ElementStripHud con la suma del 3×3×3
+    WandOverlay.java           # fila de ElementStripHud con lo que queda en el 3×3×3
+    FlightMoteParticle.java    # mota que vuela hacia la varita o detrás de la flecha
+    DrainWash.java             # motas grises según la energía que el bloque perdió
+    ChannelInputLock.java      # anula caminar y saltar mientras se canaliza
     ElementStripHud.java       # fila compartida de icono + cantidad
 src/main/resources/assets/sdfg/particles/warp_mote.json
 ```
@@ -284,6 +297,7 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 - `plan/WARP_README.md` — tipos de Warp y qué hacen (tono comercial, sin detalle técnico de port).
 - `plan/PIPE_README.md` — tapa, tubería y contenedor: qué mueve la red.
+- `plan/SCROLL_README.md` — pergaminos; Bolt y cómo se agrega el siguiente.
 - `plan/archify/warp-architecture.html` — mapa Archify interactivo (nodos SRC → archivos del mod).
 - Skill Archify: `.agents/skills/archify` (instalado desde [tt-a1i/archify](https://github.com/tt-a1i/archify)).
 
@@ -293,7 +307,13 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
-| 2026-10-01 | No mostrar `?` de elementos que no están; la varita omite los que no conoces | `ElementStripHud` solo pinta lo presente; la varita, solo lo descubierto |
+| 2026-10-01 | Un readme de pergaminos en plan | `plan/SCROLL_README.md` |
+| 2026-10-01 | Tras los 3 s y las 3 flechas, la varita no sigue absorbiendo | Una flecha por elemento; hay que soltar el clic para canalizar otra vez |
+| 2026-10-01 | Las flechas salen al terminar los 3 s, y la absorción es de 10 en 10 al azar cada segundo | Seis tiros en anillo tras la canalización; cada segundo 10 de cada elemento, bloques al azar |
+| 2026-10-01 | Las flechas salen durante los 3 s, alrededor del personaje, cada 0,5 s | Seis tiros en anillo; el elemento sigue el orden del pergamino y se repite |
+| 2026-10-01 | El cliente no arranca: el mod exportaba `net.minecraft.client.player` | El candado del movimiento queda en `client/ChannelInputLock` |
+| 2026-10-01 | Canalizar la varita con el pergamino de las casillas 1–3 | 3 s sin moverse; cada segundo hasta 100 de un color; el bloque vacío pasa a aire; al terminar, una flecha por elemento |
+| 2026-10-01 | Un pergamino, por ahora Bolt, con los elementos que pide como subtítulo | `sdfg:scroll_bolt` sin receta; página en blanco; tierra, fuego, agua |
 | 2026-10-01 | La varita se ve en el centro, como el casco | Columna bajo la mira; icono del visor bajo cada total; el mayor en dorado |
 | 2026-10-01 | El arranque marca error por `@OnlyIn` en el tinte del vial | Se quita la anotación de `VialTint`; el codec sigue siendo solo de cliente |
 | 2026-10-01 | Varita (palo) que muestra el bloque y los elementos de alrededor | `sdfg:wand` sin receta; columna en `WandOverlay`; ítems sueltos del 3×3×3 |

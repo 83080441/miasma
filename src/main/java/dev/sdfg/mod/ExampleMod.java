@@ -35,9 +35,11 @@ import dev.sdfg.mod.block.ElementPipeBlock;
 import dev.sdfg.mod.block.HeatedCauldronBlock;
 import dev.sdfg.mod.block.ValvePipeBlock;
 import dev.sdfg.mod.block.ModBlockEntities;
+import dev.sdfg.mod.element.BlockResidue;
 import dev.sdfg.mod.element.ElementDiscovery;
 import dev.sdfg.mod.inventory.VialMenu;
 import dev.sdfg.mod.item.ModDataComponents;
+import dev.sdfg.mod.item.ScrollItem;
 import dev.sdfg.mod.item.VialItem;
 import dev.sdfg.mod.item.WandItem;
 import dev.sdfg.mod.entity.ModEntities;
@@ -105,6 +107,9 @@ public class ExampleMod {
     /** Stick-shaped wand. No recipe. Reads the 3×3×3 of loose items around the holder. */
     public static final DeferredItem<WandItem> WAND = ITEMS.registerItem("wand", WandItem::new);
 
+    /** Paper scroll. More kinds are further {@link ScrollItem.Kind} entries registered the same way. */
+    public static final DeferredItem<ScrollItem> SCROLL_BOLT = ScrollItem.register(ITEMS, ScrollItem.BOLT);
+
     public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", p -> p.mapColor(MapColor.STONE));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
 
@@ -131,6 +136,7 @@ public class ExampleMod {
                 output.accept(ELEMENT_CONTAINER_ITEM.get());
                 output.accept(VIAL.get());
                 output.accept(WAND.get());
+                output.accept(SCROLL_BOLT.get());
                 for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
                     output.accept(liquid.bucket().get());
                 }
@@ -150,6 +156,7 @@ public class ExampleMod {
         ModFluids.FLUID_TYPES.register(modEventBus);
         ModFluids.FLUIDS.register(modEventBus);
         ModWorldGen.FEATURES.register(modEventBus);
+        BlockResidue.init();
         ElementDiscovery.ATTACHMENT_TYPES.register(modEventBus);
 
         modEventBus.addListener(ModEntities::registerAttributes);

@@ -27,6 +27,8 @@
   "block.sdfg.element_container": "Container",
   "item.sdfg.vial": "Vial",
   "item.sdfg.wand": "Wand",
+  "item.sdfg.scroll_bolt": "Scroll: Bolt",
+  "item.sdfg.scroll.elements": "Scroll of the elements, %s",
 
   "element.sdfg.fire": "Fire",
   "element.sdfg.water": "Water",

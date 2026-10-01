@@ -18,6 +18,14 @@ public final class ModEntities {
             builder -> builder.sized(0.5F, 0.5F).eyeHeight(0.25F).clientTrackingRange(10).updateInterval(20).fireImmune()
     );
 
+    /** Arrow fired by a finished wand channel. The element comes from the scroll. */
+    public static final DeferredHolder<EntityType<?>, EntityType<ElementArrow>> ELEMENT_ARROW = ENTITY_TYPES.registerEntityType(
+            "element_arrow",
+            ElementArrow::new,
+            MobCategory.MISC,
+            builder -> builder.sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20)
+    );
+
     /** Peaceful gnome — Blockbench husk mesh. See {@code plan/GNOME_README.md}. */
     public static final DeferredHolder<EntityType<?>, EntityType<GnomeEntity>> GNOME = ENTITY_TYPES.registerEntityType(
             "gnome",

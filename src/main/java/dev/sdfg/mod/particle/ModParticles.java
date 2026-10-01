@@ -26,6 +26,14 @@ public final class ModParticles {
     public static final DeferredHolder<ParticleType<?>, ParticleType<ColorParticleOption>> CAULDRON_BUBBLE =
             PARTICLE_TYPES.register("cauldron_bubble", ColoredParticleType::new);
 
+    /** Mote that flies along a velocity, used by the wand drain and the element arrows. */
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorParticleOption>> FLIGHT_MOTE =
+            PARTICLE_TYPES.register("flight_mote", ColoredParticleType::new);
+
+    /** Soft gray mote. The client stacks these on a block in proportion to energy it lost. */
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorParticleOption>> DRAIN_WASH =
+            PARTICLE_TYPES.register("drain_wash", ColoredParticleType::new);
+
     private ModParticles() {
     }
 
