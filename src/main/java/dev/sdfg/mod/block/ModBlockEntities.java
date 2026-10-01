@@ -18,6 +18,18 @@ public final class ModBlockEntities {
                     Set.of(ExampleMod.CAULDRON.get())
             ));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CauldronLidBlockEntity>> CAULDRON_LID =
+            BLOCK_ENTITIES.register("cauldron_lid", () -> new BlockEntityType<>(
+                    CauldronLidBlockEntity::new,
+                    Set.of(ExampleMod.CAULDRON_LID.get())
+            ));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ElementContainerBlockEntity>> ELEMENT_CONTAINER =
+            BLOCK_ENTITIES.register("element_container", () -> new BlockEntityType<>(
+                    ElementContainerBlockEntity::new,
+                    Set.of(ExampleMod.ELEMENT_CONTAINER.get())
+            ));
+
     private ModBlockEntities() {
     }
 }

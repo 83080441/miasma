@@ -1,5 +1,8 @@
 package dev.sdfg.mod.client;
 
+import dev.sdfg.mod.block.CauldronLidBlock;
+import dev.sdfg.mod.block.ElementContainerBlock;
+import dev.sdfg.mod.block.ElementContainerBlockEntity;
 import dev.sdfg.mod.block.HeatedCauldronBlock;
 import dev.sdfg.mod.block.HeatedCauldronBlockEntity;
 import dev.sdfg.mod.ExampleMod;
@@ -138,11 +141,17 @@ public final class WarpRevealOverlay {
         BlockPos pos = blockHit.getBlockPos();
         BlockState state = player.level().getBlockState(pos);
         if (state.getBlock() instanceof HeatedCauldronBlock) {
-            if (player.level().getBlockEntity(pos) instanceof HeatedCauldronBlockEntity cauldron) {
-                ElementAmounts contents = cauldron.contents();
+            return cauldronReveal(player, pos, blockHit);
+        }
+        if (state.getBlock() instanceof CauldronLidBlock) {
+            return cauldronReveal(player, pos.below(), blockHit);
+        }
+        if (state.getBlock() instanceof ElementContainerBlock) {
+            if (player.level().getBlockEntity(pos) instanceof ElementContainerBlockEntity container) {
+                ElementAmounts contents = container.contents();
                 if (!contents.isEmpty()) {
                     double dist = player.getEyePosition(1.0F).distanceTo(blockHit.getLocation());
-                    return RevealTarget.of("Cauldron", "contents", contents, dist);
+                    return RevealTarget.of("Container", "contents", contents, dist);
                 }
             }
             return null;
@@ -161,6 +170,17 @@ public final class WarpRevealOverlay {
         }
         double dist = player.getEyePosition(1.0F).distanceTo(blockHit.getLocation());
         return RevealTarget.of("Block Reveal", idOf(item), amounts, dist);
+    }
+
+    private static RevealTarget cauldronReveal(LocalPlayer player, BlockPos pos, BlockHitResult blockHit) {
+        if (player.level().getBlockEntity(pos) instanceof HeatedCauldronBlockEntity cauldron) {
+            ElementAmounts contents = cauldron.contents();
+            if (!contents.isEmpty()) {
+                double dist = player.getEyePosition(1.0F).distanceTo(blockHit.getLocation());
+                return RevealTarget.of("Cauldron", "contents", contents, dist);
+            }
+        }
+        return null;
     }
 
     /** Main-hand bucket, when the crosshair is not already on something with elements. */

@@ -64,6 +64,36 @@ public final class ElementDiscovery {
         return of(player).knows(element);
     }
 
+    /**
+     * Marks every element of this catalog level as known, and grants its progress advancement.
+     * Level 1 is the current catalog. A level with no elements yet returns {@code matched == 0}.
+     */
+    public static UnlockResult unlockLevel(ServerPlayer player, int level) {
+        DiscoveredSet next = of(player);
+        int matched = 0;
+        int newly = 0;
+        for (Element element : Element.values()) {
+            if (element.discoveryLevel() != level) {
+                continue;
+            }
+            matched++;
+            award(player, Identifier.fromNamespaceAndPath(ExampleMod.MODID, "progress/" + element.id()), "discover");
+            if (!next.knows(element)) {
+                next = next.with(element);
+                newly++;
+            }
+        }
+        if (newly > 0) {
+            player.setData(DISCOVERED, next);
+            player.syncData(DISCOVERED);
+        }
+        return new UnlockResult(matched, newly);
+    }
+
+    /** How many elements belong to the requested level, and how many were new for this player. */
+    public record UnlockResult(int matched, int newly) {
+    }
+
     /** The Warp under the spyglass, or null. */
     public static WarpEntity lookedWarp(Player player) {
         Vec3 start = player.getEyePosition(1.0F);

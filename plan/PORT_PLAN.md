@@ -46,7 +46,13 @@ Paquete ya alineado: `dev.sdfg.mod` / namespace `sdfg`. Si el destino usa otro i
 | `entity/ModEntities.java` | DeferredRegister: solo `entity1` → `WarpEntity` |
 | `particle/ModParticles.java` | DeferredRegister: `warp_mote` (`SimpleParticleType`) |
 | Registro en clase principal del mod | `ENTITY_TYPES.register(bus)` + `PARTICLE_TYPES.register(bus)` |
-| `element/ElementDiscovery.java` | Elementos descubiertos; otorga `progress/root` (acercarse) y `progress/<elemento>` al mirar ese primario con el catalejo |
+| `element/ElementDiscovery.java` | Elementos descubiertos; otorga `progress/root` (acercarse) y `progress/<elemento>` al mirar ese primario con el catalejo. `unlockLevel` marca un catálogo |
+| `ElementCommands.java` | `/element unlock <nivel>`; el 1 son las partículas actuales |
+| `block/CauldronLidBlock.java` | Tapa (modelo de tolva) sobre el caldero; origen de la red de tuberías |
+| `block/ElementPipeBlock.java` | Tubería de hierro que conecta tapa, tuberías y contenedor |
+| `block/ValvePipeBlock.java` | Tubería de paso: `open` deja fluir; cerrada corta esa sección |
+| `block/ElementContainerBlock.java` | Contenedor de vidrio; `level` 0–4 muestra el líquido de la mezcla |
+| `block/PipeNetwork.java` | Camino tapa → tuberías → contenedor más cercano |
 | `data/<modid>/advancement/progress/root.json` | Raíz de la pestaña de logros (fondo End, `minecraft:impossible`) |
 | `data/<modid>/advancement/progress/<elemento>.json` | Un logro por elemento (fuego…aether), hijo de la raíz, icono del balde puro |
 
@@ -141,6 +147,7 @@ Implementados en renderer/helper (misma entidad):
 
 21. Registrar `/warpkill` y `/killwarps` (permiso gamemaster): `entity.kill` en todos los `WarpEntity` de mundos cargados.
 22. Alternativa vanilla: `/kill @e[type=<modid>:entity1]`.
+- `/element unlock <nivel>`: el 1 descubre los 8 elementos actuales (`Element.discoveryLevel`). 2+ queda vacío hasta un catálogo nuevo.
 
 ### Fase H — Gravedad (ítems + living)
 
@@ -212,6 +219,10 @@ Checklist visual:
 - [ ] Misma seed → mismos XZ (`/warplocate` coincide)
 - [ ] Acercarse a un Warp (<12 bloques) desbloquea la pestaña de logros
 - [ ] Con el catalejo, el elemento primario de ese Warp desbloquea su propio logro
+- [ ] Tapa sobre el caldero + tubería + contenedor de vidrio: cada segundo sale un solo elemento al azar y el resto se queda en el caldero
+- [ ] Tubería de paso cerrada corta el camino; clic derecho la abre y el elemento vuelve a pasar
+- [ ] El contenedor de vidrio muestra el líquido: sube con la cantidad y se tiñe con la mezcla
+- [ ] `/element unlock 1` descubre los 8 elementos actuales; `/element unlock 2` avisa que ese nivel no existe
 
 ---
 
@@ -222,6 +233,7 @@ src/main/java/dev/sdfg/mod/
   ExampleMod.java
   ExampleModClient.java
   WarpCommands.java            # /warpkill /killwarps /warplocate /warptp
+  ElementCommands.java         # /element unlock <nivel>
   entity/
     WarpEntity.java
     WarpSubtype.java
@@ -234,6 +246,12 @@ src/main/java/dev/sdfg/mod/
     ModParticles.java
   element/
     ElementDiscovery.java      # attachment + progress/root y progress/<elemento>
+  block/
+    CauldronLidBlock.java      # tapa (tolva); saca un elemento al azar
+    ElementPipeBlock.java
+    ValvePipeBlock.java         # open/closed; cerrada no deja pasar
+    ElementContainerBlock.java # vidrio
+    PipeNetwork.java
   resources/data/sdfg/
     advancement/progress/root.json
     advancement/progress/<elemento>.json
@@ -258,6 +276,7 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 ## Documentación comercial
 
 - `plan/WARP_README.md` — tipos de Warp y qué hacen (tono comercial, sin detalle técnico de port).
+- `plan/PIPE_README.md` — tapa, tubería y contenedor: qué mueve la red.
 - `plan/archify/warp-architecture.html` — mapa Archify interactivo (nodos SRC → archivos del mod).
 - Skill Archify: `.agents/skills/archify` (instalado desde [tt-a1i/archify](https://github.com/tt-a1i/archify)).
 
@@ -267,6 +286,12 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-01 | El contenedor muestra el líquido de lo que guarda | `level` 0–4; agua teñida con la mezcla (`ElementContainerTint`) |
+| 2026-09-30 | Tubería de paso con estados abierta/cerrada | `sdfg:element_valve`; cerrada, `PipeNetwork` no cruza esa sección |
+| 2026-09-30 | No borrar el mundo de prueba al lanzar el cliente | `./gradlew runClient -PkeepWorld` deja `run/saves/test` |
+| 2026-09-30 | `/element unlock 1` desbloquea las partículas actuales | `ElementCommands`; nivel 1 = catálogo de ahora; 2+ reservado |
+| 2026-09-30 | Documentar la red de tuberías en su propio md | `plan/PIPE_README.md` |
+| 2026-09-30 | Tapa del caldero, tuberías y contenedor de vidrio | La tapa (tolva) saca un elemento al azar y lo manda por `ElementPipeBlock` a `ElementContainerBlock` |
 | 2026-09-30 | Visor: icono solo del elemento descubierto; el resto ofuscado | `WarpRevealOverlay` usa `ChatFormatting.OBFUSCATED` en vez del PNG y el número |
 | 2026-09-30 | Un logro por elemento descubierto con el catalejo | `progress/<id>` (8); se quita `base_element` |
 | 2026-09-30 | Pestaña de logros Warp (acercarse + elemento base) | `data/sdfg/advancement/progress/`; `ElementDiscovery` otorga `approach` y `discover` |

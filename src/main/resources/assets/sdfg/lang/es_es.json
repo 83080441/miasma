@@ -21,6 +21,10 @@
   "block.sdfg.aether": "Aether puro",
   "item.sdfg.aether_bucket": "Aether puro",
   "block.sdfg.cauldron": "Caldero",
+  "block.sdfg.cauldron_lid": "Tapa del caldero",
+  "block.sdfg.element_pipe": "Tubería",
+  "block.sdfg.element_valve": "Tubería de paso",
+  "block.sdfg.element_container": "Contenedor",
 
   "element.sdfg.fire": "Fuego",
   "element.sdfg.water": "Agua",
@@ -31,6 +35,9 @@
   "element.sdfg.miasma": "Miasma",
   "element.sdfg.aether": "Aether",
   "sdfg.discovery.found": "Descubriste %s",
+  "sdfg.command.element.unlock.done": "Desbloqueaste el nivel %s de partículas (%s nuevas)",
+  "sdfg.command.element.unlock.already": "El nivel %s de partículas ya estaba desbloqueado",
+  "sdfg.command.element.unlock.empty": "El nivel %s de partículas todavía no existe",
 
   "advancements.sdfg.progress.root.title": "Un Warp",
   "advancements.sdfg.progress.root.description": "Acércate a un Warp",

@@ -21,6 +21,10 @@
   "block.sdfg.aether": "Pure Aether",
   "item.sdfg.aether_bucket": "Pure Aether",
   "block.sdfg.cauldron": "Cauldron",
+  "block.sdfg.cauldron_lid": "Cauldron Lid",
+  "block.sdfg.element_pipe": "Pipe",
+  "block.sdfg.element_valve": "Valve Pipe",
+  "block.sdfg.element_container": "Container",
 
   "element.sdfg.fire": "Fire",
   "element.sdfg.water": "Water",
@@ -31,6 +35,9 @@
   "element.sdfg.miasma": "Miasma",
   "element.sdfg.aether": "Aether",
   "sdfg.discovery.found": "Discovered %s",
+  "sdfg.command.element.unlock.done": "Unlocked particle level %s (%s new)",
+  "sdfg.command.element.unlock.already": "Particle level %s is already unlocked",
+  "sdfg.command.element.unlock.empty": "Particle level %s is not defined yet",
 
   "advancements.sdfg.progress.root.title": "A Warp",
   "advancements.sdfg.progress.root.description": "Walk up to a Warp",

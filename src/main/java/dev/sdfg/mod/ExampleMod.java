@@ -28,7 +28,11 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import dev.sdfg.mod.block.CauldronLidBlock;
+import dev.sdfg.mod.block.ElementContainerBlock;
+import dev.sdfg.mod.block.ElementPipeBlock;
 import dev.sdfg.mod.block.HeatedCauldronBlock;
+import dev.sdfg.mod.block.ValvePipeBlock;
 import dev.sdfg.mod.block.ModBlockEntities;
 import dev.sdfg.mod.element.ElementDiscovery;
 import dev.sdfg.mod.entity.ModEntities;
@@ -55,6 +59,34 @@ public class ExampleMod {
     );
     public static final DeferredItem<BlockItem> CAULDRON_ITEM = ITEMS.registerSimpleBlockItem("cauldron", CAULDRON);
 
+    public static final DeferredBlock<CauldronLidBlock> CAULDRON_LID = BLOCKS.registerBlock(
+            "cauldron_lid",
+            CauldronLidBlock::new,
+            CauldronLidBlock::lidProperties
+    );
+    public static final DeferredItem<BlockItem> CAULDRON_LID_ITEM = ITEMS.registerSimpleBlockItem("cauldron_lid", CAULDRON_LID);
+
+    public static final DeferredBlock<ElementPipeBlock> ELEMENT_PIPE = BLOCKS.registerBlock(
+            "element_pipe",
+            ElementPipeBlock::new,
+            ElementPipeBlock::pipeProperties
+    );
+    public static final DeferredItem<BlockItem> ELEMENT_PIPE_ITEM = ITEMS.registerSimpleBlockItem("element_pipe", ELEMENT_PIPE);
+
+    public static final DeferredBlock<ValvePipeBlock> VALVE_PIPE = BLOCKS.registerBlock(
+            "element_valve",
+            ValvePipeBlock::new,
+            ValvePipeBlock::valveProperties
+    );
+    public static final DeferredItem<BlockItem> VALVE_PIPE_ITEM = ITEMS.registerSimpleBlockItem("element_valve", VALVE_PIPE);
+
+    public static final DeferredBlock<ElementContainerBlock> ELEMENT_CONTAINER = BLOCKS.registerBlock(
+            "element_container",
+            ElementContainerBlock::new,
+            ElementContainerBlock::containerProperties
+    );
+    public static final DeferredItem<BlockItem> ELEMENT_CONTAINER_ITEM = ITEMS.registerSimpleBlockItem("element_container", ELEMENT_CONTAINER);
+
     public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", p -> p.mapColor(MapColor.STONE));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
 
@@ -75,6 +107,10 @@ public class ExampleMod {
                 output.accept(EXAMPLE_ITEM.get());
                 output.accept(REVEALING_HELMET.get());
                 output.accept(CAULDRON_ITEM.get());
+                output.accept(CAULDRON_LID_ITEM.get());
+                output.accept(ELEMENT_PIPE_ITEM.get());
+                output.accept(VALVE_PIPE_ITEM.get());
+                output.accept(ELEMENT_CONTAINER_ITEM.get());
                 for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
                     output.accept(liquid.bucket().get());
                 }

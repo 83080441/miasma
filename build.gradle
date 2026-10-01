@@ -36,6 +36,7 @@ neoForge {
             client()
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
             // Fresh creative world "test" is copied before each launch (see prepareTestWorld).
+            // ./gradlew runClient -PkeepWorld leaves run/saves/test in place.
             programArguments.addAll '--quickPlaySingleplayer', 'test'
         }
 
@@ -117,13 +118,17 @@ idea {
 }
 
 // Each runClient gets a fresh creative "test" world from world-template/ (chunks empty so mod worldgen runs).
+// -PkeepWorld skips that copy when run/saves/test already exists.
 def testWorldDir = layout.projectDirectory.dir('run/saves/test')
 def testWorldTemplate = layout.projectDirectory.dir('world-template/test')
+def keepWorldRequested = project.findProperty('keepWorld')
+def keepWorld = keepWorldRequested != null && keepWorldRequested.toString() != 'false'
 
 tasks.register('cleanTestWorld', Delete) {
     delete testWorldDir
     // Always wipe so each runClient gets a brand-new copy.
     outputs.upToDateWhen { false }
+    onlyIf { !keepWorld }
 }
 
 tasks.register('prepareTestWorld', Copy) {
@@ -131,16 +136,41 @@ tasks.register('prepareTestWorld', Copy) {
     from testWorldTemplate
     into testWorldDir
     outputs.upToDateWhen { false }
+    onlyIf { !keepWorld }
     doFirst {
         if (!testWorldTemplate.asFile.exists()) {
             throw new GradleException("Missing world template at ${testWorldTemplate.asFile}. Expected creative world 'test'.")
         }
         logger.lifecycle("Installing fresh creative world from world-template/test -> run/saves/test")
     }
+}
+
+tasks.register('ensureTestWorld', Copy) {
+    from testWorldTemplate
+    into testWorldDir
+    onlyIf { keepWorld && !testWorldDir.asFile.exists() }
+    doFirst {
+        if (!testWorldTemplate.asFile.exists()) {
+            throw new GradleException("Missing world template at ${testWorldTemplate.asFile}. Expected creative world 'test'.")
+        }
+        logger.lifecycle("No saved world yet; installing world-template/test -> run/saves/test")
+    }
+}
+
+tasks.register('clearTestSessionLock') {
+    if (keepWorld) {
+        mustRunAfter 'ensureTestWorld'
+    } else {
+        mustRunAfter 'prepareTestWorld'
+    }
+    outputs.upToDateWhen { false }
     doLast {
         def lock = testWorldDir.file('session.lock').asFile
         if (lock.exists()) {
             lock.delete()
+        }
+        if (keepWorld) {
+            logger.lifecycle('Keeping the existing world at run/saves/test')
         }
     }
 }
@@ -167,5 +197,10 @@ tasks.register('forceFullscreen') {
 }
 
 tasks.named('runClient').configure {
-    dependsOn 'prepareTestWorld', 'forceFullscreen'
+    dependsOn 'forceFullscreen', 'clearTestSessionLock'
+    if (keepWorld) {
+        dependsOn 'ensureTestWorld'
+    } else {
+        dependsOn 'prepareTestWorld'
+    }
 }

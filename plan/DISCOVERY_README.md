@@ -50,8 +50,23 @@ La primera vez, la barra de acción dice el nombre. Una sola vez por elemento.
 
 ---
 
+## Comando
+
+`/element unlock <nivel>` (permiso de comandos).
+
+| Nivel | Qué desbloquea |
+|-------|----------------|
+| **1** | Las partículas de ahora: los 8 del catálogo |
+| 2, 3, … | Reservados. Hoy responden que ese nivel todavía no existe |
+
+El nivel solo incluye los elementos de ese catálogo. Cuando exista el 2, `/element unlock 1` sigue siendo únicamente los de ahora.
+
+Marca esos elementos como conocidos (el casco los muestra con icono y número) y otorga su logro de la pestaña de progreso. Es del jugador que ejecuta el comando. Persiste igual que un descubrimiento con el catalejo.
+
+---
+
 ## Fuera de alcance
 
-- El casco revelador sigue mostrando lo que mira, conozcas el elemento o no.
+- El casco revelador muestra icono y número solo de los elementos ya conocidos. El resto sale ofuscado.
 - No se desbloquea el segundo o tercero del mismo nodo.
 - No hay libro ni menú de elementos descubiertos.

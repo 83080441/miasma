@@ -4,6 +4,7 @@ import java.util.List;
 
 import dev.sdfg.mod.client.CauldronBubbleParticle;
 import dev.sdfg.mod.client.CauldronWaterTint;
+import dev.sdfg.mod.client.ElementContainerTint;
 import dev.sdfg.mod.client.ElementMoteParticle;
 import dev.sdfg.mod.client.GnomeModel;
 import dev.sdfg.mod.client.GnomeRenderer;
@@ -85,6 +86,7 @@ public class ExampleModClient {
     @SubscribeEvent
     static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(List.of(CauldronWaterTint.INSTANCE), ExampleMod.CAULDRON.get());
+        event.register(List.of(ElementContainerTint.INSTANCE), ExampleMod.ELEMENT_CONTAINER.get());
     }
 
     @SubscribeEvent

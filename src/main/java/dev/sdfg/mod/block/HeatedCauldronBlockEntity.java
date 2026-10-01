@@ -53,6 +53,34 @@ public class HeatedCauldronBlockEntity extends BlockEntity {
         this.sync();
     }
 
+    /**
+     * Removes up to {@code amount} of one element and leaves every other element in place.
+     * An empty bowl unseals and drops the water level.
+     */
+    public int drain(Element element, int amount) {
+        if (element == null || amount <= 0) {
+            return 0;
+        }
+        int have = this.contents.get(element);
+        int taken = Math.min(have, amount);
+        if (taken <= 0) {
+            return 0;
+        }
+        this.contents.set(element, have - taken);
+        if (this.contents.isEmpty()) {
+            this.sealed = false;
+            Level level = this.level;
+            if (level != null) {
+                BlockState state = level.getBlockState(this.worldPosition);
+                if (state.hasProperty(HeatedCauldronBlock.LEVEL) && state.getValue(HeatedCauldronBlock.LEVEL) > 0) {
+                    level.setBlock(this.worldPosition, state.setValue(HeatedCauldronBlock.LEVEL, 0), Block.UPDATE_ALL);
+                }
+            }
+        }
+        this.sync();
+        return taken;
+    }
+
     public void serverTick() {
         Level level = this.level;
         if (level == null || level.isClientSide()) {

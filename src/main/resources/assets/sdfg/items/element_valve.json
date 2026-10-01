@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "sdfg:block/element_valve_inventory"
+  }
+}

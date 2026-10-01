@@ -39,6 +39,14 @@ public enum Element {
         return this.number;
     }
 
+    /**
+     * Particle catalog unlocked by {@code /element unlock}.
+     * Every current element is level 1. Later catalogs use 2, 3, and so on.
+     */
+    public int discoveryLevel() {
+        return 1;
+    }
+
     /** Mote color as {@code 0xRRGGBB}, matching the element icon. */
     public int color() {
         return this.color;

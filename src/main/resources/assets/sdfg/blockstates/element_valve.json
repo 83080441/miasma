@@ -1,0 +1,36 @@
+{
+  "multipart": [
+    {
+      "when": { "open": "true" },
+      "apply": { "model": "sdfg:block/element_valve_open" }
+    },
+    {
+      "when": { "open": "false" },
+      "apply": { "model": "sdfg:block/element_valve_closed" }
+    },
+    {
+      "when": { "north": "true" },
+      "apply": { "model": "sdfg:block/element_pipe_arm" }
+    },
+    {
+      "when": { "east": "true" },
+      "apply": { "model": "sdfg:block/element_pipe_arm", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "south": "true" },
+      "apply": { "model": "sdfg:block/element_pipe_arm", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "west": "true" },
+      "apply": { "model": "sdfg:block/element_pipe_arm", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "up": "true" },
+      "apply": { "model": "sdfg:block/element_pipe_arm", "x": 270, "uvlock": true }
+    },
+    {
+      "when": { "down": "true" },
+      "apply": { "model": "sdfg:block/element_pipe_arm", "x": 90, "uvlock": true }
+    }
+  ]
+}

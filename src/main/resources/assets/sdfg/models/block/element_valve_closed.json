@@ -1,0 +1,21 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/redstone_block",
+    "valve": "minecraft:block/redstone_block"
+  },
+  "elements": [
+    {
+      "from": [4, 4, 4],
+      "to": [12, 12, 12],
+      "faces": {
+        "down": { "texture": "#valve" },
+        "up": { "texture": "#valve" },
+        "north": { "texture": "#valve" },
+        "south": { "texture": "#valve" },
+        "west": { "texture": "#valve" },
+        "east": { "texture": "#valve" }
+      }
+    }
+  ]
+}

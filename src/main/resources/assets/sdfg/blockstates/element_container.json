@@ -1,0 +1,23 @@
+{
+  "multipart": [
+    {
+      "apply": { "model": "sdfg:block/element_container" }
+    },
+    {
+      "when": { "level": "1" },
+      "apply": { "model": "sdfg:block/element_container_level1" }
+    },
+    {
+      "when": { "level": "2" },
+      "apply": { "model": "sdfg:block/element_container_level2" }
+    },
+    {
+      "when": { "level": "3" },
+      "apply": { "model": "sdfg:block/element_container_level3" }
+    },
+    {
+      "when": { "level": "4" },
+      "apply": { "model": "sdfg:block/element_container_level4" }
+    }
+  ]
+}
