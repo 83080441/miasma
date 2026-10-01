@@ -10,12 +10,15 @@ import dev.sdfg.mod.client.GnomeModel;
 import dev.sdfg.mod.client.GnomeRenderer;
 import dev.sdfg.mod.client.WarpMoteParticle;
 import dev.sdfg.mod.client.WarpSceneCapture;
+import dev.sdfg.mod.client.VialScreen;
+import dev.sdfg.mod.client.VialTint;
 import dev.sdfg.mod.client.WarpRenderer;
 import dev.sdfg.mod.entity.ModEntities;
 import dev.sdfg.mod.fluid.ModFluids;
 import dev.sdfg.mod.particle.ModParticles;
 import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.fluid.FluidTintSources;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -81,6 +84,16 @@ public class ExampleModClient {
             );
             event.register(model, liquid.still(), liquid.flowing());
         }
+    }
+
+    @SubscribeEvent
+    static void registerMenuScreens(RegisterMenuScreensEvent event) {
+        event.register(ExampleMod.VIAL_MENU.get(), VialScreen::new);
+    }
+
+    @SubscribeEvent
+    static void registerItemTints(RegisterColorHandlersEvent.ItemTintSources event) {
+        event.register(VialTint.ID, VialTint.MAP_CODEC);
     }
 
     @SubscribeEvent

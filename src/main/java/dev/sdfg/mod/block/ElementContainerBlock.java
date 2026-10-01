@@ -4,7 +4,10 @@ import com.mojang.serialization.MapCodec;
 import dev.sdfg.mod.element.Element;
 import dev.sdfg.mod.element.ElementAmounts;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -86,5 +89,13 @@ public class ElementContainerBlock extends TransparentBlock implements EntityBlo
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ElementContainerBlockEntity(pos, state);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ElementContainerBlockEntity tank) {
+            player.openMenu(tank);
+        }
+        return InteractionResult.SUCCESS;
     }
 }

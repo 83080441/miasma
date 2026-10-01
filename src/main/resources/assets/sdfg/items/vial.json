@@ -1,0 +1,20 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:has_component",
+    "component": "sdfg:vial_contents",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "sdfg:item/vial"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "sdfg:item/vial_filled",
+      "tints": [
+        {
+          "type": "sdfg:vial"
+        }
+      ]
+    }
+  }
+}

@@ -222,6 +222,7 @@ Checklist visual:
 - [ ] Tapa sobre el caldero + tubería + contenedor de vidrio: cada segundo sale un solo elemento al azar y el resto se queda en el caldero
 - [ ] Tubería de paso cerrada corta el camino; clic derecho la abre y el elemento vuelve a pasar
 - [ ] El contenedor de vidrio muestra el líquido: sube con la cantidad y se tiñe con la mezcla
+- [ ] Clic derecho en el vidrio: un vial vacío saca hasta 100, en la proporción de la mezcla
 - [ ] `/element unlock 1` descubre los 8 elementos actuales; `/element unlock 2` avisa que ese nivel no existe
 
 ---
@@ -286,6 +287,8 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-01 | El vial se tiñe con la mezcla, como los cubos | Capa de líquido blanca × `blendColor` (`sdfg:vial`) |
+| 2026-10-01 | Vial con corcho que saca 100 en proporción | Clic derecho en el vidrio; `sdfg:vial`; 100:100:50 → 40/40/20 |
 | 2026-10-01 | El contenedor muestra el líquido de lo que guarda | `level` 0–4; agua teñida con la mezcla (`ElementContainerTint`) |
 | 2026-09-30 | Tubería de paso con estados abierta/cerrada | `sdfg:element_valve`; cerrada, `PipeNetwork` no cruza esa sección |
 | 2026-09-30 | No borrar el mundo de prueba al lanzar el cliente | `./gradlew runClient -PkeepWorld` deja `run/saves/test` |

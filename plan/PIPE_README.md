@@ -89,6 +89,18 @@ Vacío es solo vidrio. Cuando entra un elemento, aparece agua dentro, teñida co
 
 **100** de un solo elemento ya lo llena. Si luego llega otro, se queda lleno y el color pasa a ser la mezcla de los dos.
 
+Clic derecho abre un menú con **un** espacio. Ahí entra el **vial** (`sdfg:vial`), una botella de vidrio con tapa de corcho. No tiene receta.
+
+El vial saca como máximo **100** en total:
+
+| En el contenedor | En el vial |
+|------------------|------------|
+| Solo un elemento, 100 o más | 100 de ese elemento |
+| 100 agua, 100 tierra, 50 luz (100:100:50) | 40 agua, 40 tierra, 20 luz |
+| Menos de 100 en total | Se lleva todo, en la misma proporción |
+
+El vial vacío se queda vacío si el contenedor no tiene nada. El líquido del icono se tiñe con el color de la mezcla, pesado por la cantidad de cada elemento, igual que el cubo de un líquido puro. El texto del ítem lista lo que llevó. Al romper el vidrio, el vial que estaba en el menú cae.
+
 ---
 
 ## Casco revelador
@@ -108,6 +120,7 @@ Con el casco y agachado:
 | Tubería | `block/ElementPipeBlock.java` |
 | Tubería de paso | `block/ValvePipeBlock.java` |
 | Contenedor | `block/ElementContainerBlock.java`, `block/ElementContainerBlockEntity.java` |
+| Vial | `item/VialItem.java`; menú `inventory/VialMenu.java` |
 | Camino | `block/PipeNetwork.java` |
 | Sacar del caldero | `HeatedCauldronBlockEntity.drain` |
 | Modelos | `assets/sdfg/models/block/element_pipe_core.json`, `element_pipe_arm.json`, `element_pipe_inventory.json` |

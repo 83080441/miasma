@@ -1,5 +1,6 @@
 package dev.sdfg.mod.element;
 
+import dev.sdfg.mod.item.VialItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
@@ -18,6 +19,10 @@ public final class ElementLookup {
     public static ElementAmounts of(ItemStack stack) {
         if (stack == null || stack.isEmpty()) {
             return ElementAmounts.empty();
+        }
+        ElementAmounts carried = VialItem.contentsOf(stack);
+        if (!carried.isEmpty()) {
+            return carried;
         }
         return of(stack.getItem());
     }

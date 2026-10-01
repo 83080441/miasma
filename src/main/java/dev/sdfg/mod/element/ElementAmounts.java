@@ -1,6 +1,7 @@
 package dev.sdfg.mod.element;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -117,6 +118,70 @@ public final class ElementAmounts {
         int count = 1 + random.nextInt(3);
         for (int i = 0; i < count; i++) {
             result.set(pool.get(i), MIN_PRESENT + random.nextInt(MAX_AMOUNT));
+        }
+        return result;
+    }
+
+    public int total() {
+        int sum = 0;
+        for (int amount : this.amounts) {
+            sum += amount;
+        }
+        return sum;
+    }
+
+    /**
+     * A mix of the same ratios that sums to {@code capacity}, or to everything
+     * when there is less than {@code capacity}. Shares of 1 are kept when the remainder is largest.
+     */
+    public ElementAmounts portion(int capacity) {
+        int total = total();
+        if (total <= 0 || capacity <= 0) {
+            return empty();
+        }
+        int budget = Math.min(capacity, total);
+        if (budget == total) {
+            return copyOf(this);
+        }
+        Element[] elements = Element.values();
+        int[] taken = new int[elements.length];
+        double[] remainder = new double[elements.length];
+        int assigned = 0;
+        for (int i = 0; i < elements.length; i++) {
+            int amount = get(elements[i]);
+            if (amount <= 0) {
+                continue;
+            }
+            double exact = (double) amount * budget / total;
+            taken[i] = (int) Math.floor(exact);
+            remainder[i] = exact - taken[i];
+            assigned += taken[i];
+        }
+        int left = budget - assigned;
+        while (left > 0) {
+            int best = -1;
+            double bestRemainder = -1.0;
+            for (int i = 0; i < elements.length; i++) {
+                if (taken[i] >= get(elements[i])) {
+                    continue;
+                }
+                if (remainder[i] > bestRemainder) {
+                    bestRemainder = remainder[i];
+                    best = i;
+                }
+            }
+            if (best < 0) {
+                break;
+            }
+            taken[best]++;
+            remainder[best] = 0.0;
+            left--;
+        }
+        ElementAmounts result = empty();
+        for (int i = 0; i < elements.length; i++) {
+            if (taken[i] > 0) {
+                result.set(elements[i], taken[i]);
+            }
         }
         return result;
     }
@@ -288,6 +353,16 @@ public final class ElementAmounts {
 
     public static ElementAmounts read(ValueInput input) {
         return decode(input.getStringOr("Elements", ""));
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof ElementAmounts amounts && Arrays.equals(this.amounts, amounts.amounts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(this.amounts);
     }
 
     /** HUD / debug: {@code fire 1, water 2}. */

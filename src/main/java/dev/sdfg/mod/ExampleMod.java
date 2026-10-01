@@ -14,6 +14,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -35,10 +36,14 @@ import dev.sdfg.mod.block.HeatedCauldronBlock;
 import dev.sdfg.mod.block.ValvePipeBlock;
 import dev.sdfg.mod.block.ModBlockEntities;
 import dev.sdfg.mod.element.ElementDiscovery;
+import dev.sdfg.mod.inventory.VialMenu;
+import dev.sdfg.mod.item.ModDataComponents;
+import dev.sdfg.mod.item.VialItem;
 import dev.sdfg.mod.entity.ModEntities;
 import dev.sdfg.mod.fluid.ModFluids;
 import dev.sdfg.mod.particle.ModParticles;
 import dev.sdfg.mod.worldgen.ModWorldGen;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -51,6 +56,12 @@ public class ExampleMod {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, MODID);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<VialMenu>> VIAL_MENU = MENUS.register(
+            "element_container",
+            () -> IMenuTypeExtension.create(VialMenu::fromNetwork)
+    );
 
     public static final DeferredBlock<HeatedCauldronBlock> CAULDRON = BLOCKS.registerBlock(
             "cauldron",
@@ -87,6 +98,9 @@ public class ExampleMod {
     );
     public static final DeferredItem<BlockItem> ELEMENT_CONTAINER_ITEM = ITEMS.registerSimpleBlockItem("element_container", ELEMENT_CONTAINER);
 
+    /** Corked vial. Holds up to 100 of a container's mix. No recipe yet. */
+    public static final DeferredItem<VialItem> VIAL = ITEMS.registerItem("vial", VialItem::new);
+
     public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", p -> p.mapColor(MapColor.STONE));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
 
@@ -111,6 +125,7 @@ public class ExampleMod {
                 output.accept(ELEMENT_PIPE_ITEM.get());
                 output.accept(VALVE_PIPE_ITEM.get());
                 output.accept(ELEMENT_CONTAINER_ITEM.get());
+                output.accept(VIAL.get());
                 for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
                     output.accept(liquid.bucket().get());
                 }
@@ -121,6 +136,8 @@ public class ExampleMod {
 
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
+        ModDataComponents.DATA_COMPONENTS.register(modEventBus);
+        MENUS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
