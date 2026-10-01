@@ -36,7 +36,13 @@ El cubo es el 3×3×3 centrado en el bloque donde está parado.
 
 Cada **segundo** resta **10** de cada elemento del pergamino. El orden de esos elementos sale al azar, y los 10 salen de bloques al azar del cubo. Un bloque suelta como mucho esos 10 y, si todavía le queda, sigue. Si se queda sin ningún elemento, pasa a aire y suelta motas de ese color hacia la varita. Lo gastado queda en el chunk y la fila de la varita muestra lo que queda.
 
-Al cumplir los 3 segundos la absorción se detiene. Después salen las flechas, **una por elemento** y en el orden en que está escrito el pergamino, cada **medio segundo**, en un anillo alrededor del jugador, hacia donde miraba al terminar. En Bolt: tierra, luego fuego, luego agua. Cada una deja motas de su elemento. No se pueden recoger.
+Al cumplir los 3 segundos la absorción se detiene. Después salen **tres** proyectiles, cada **medio segundo**, en un anillo alrededor del jugador, hacia donde miraba al terminar. El elemento de esos tres es el que de verdad se sacó del cubo: solo tierra da tres de tierra, solo agua tres de agua, solo fuego tres de fuego. Si se sacó más de uno, los tres se reparten entre esos, y el hueco que sobra repite el que más se sacó. Si no se sacó nada, no sale ningún bolt. Ninguno se puede recoger. El daño atraviesa la armadura. A los **15** bloques el disparo se acaba; el de agua, si llega tan lejos sin pegar, estalla igual.
+
+| Elemento | Vuelo | Daño | Qué se ve |
+|----------|-------|------|-----------|
+| Tierra | Parábola como una flecha, apuntada a donde se mira | 2 corazones | Púa roja en 3D, opaca, con motas rojas |
+| Fuego | Recto, sin gravedad, y pierde velocidad rápido | Medio corazón y 4 segundos de quemadura | Llamas, sin cuerpo |
+| Agua | Se arroja en una parábola más alta | Al pegar de frente, 1 corazón y medio. El estallido cubre un área de 3×3 y hace medio corazón | Cuadrado chico semitransparente, con burbujas |
 
 Si el clic sigue apretado, no empieza otra canalización. Hay que soltarlo y volver a apretar.
 
@@ -62,5 +68,5 @@ El id del ítem no lleva puntos: `scroll_bolt`, no `scroll.bolt`.
 | Canalización | `item/WandChannel.java` |
 | Varita | `item/WandItem.java` |
 | Lo que queda en el bloque | `element/BlockResidue.java` |
-| Flecha | `entity/ElementArrow.java` |
+| Proyectil de Bolt | `entity/ElementArrow.java`, `client/ElementArrowRenderer.java` |
 | Modelo | `assets/sdfg/items/scroll_bolt.json` |

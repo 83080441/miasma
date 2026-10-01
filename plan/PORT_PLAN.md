@@ -230,7 +230,7 @@ Checklist visual:
 - [ ] Cada segundo resta 10 de cada elemento del pergamino, en orden al azar y de bloques al azar del 3×3×3
 - [ ] Si el bloque se queda sin elementos, pasa a aire y suelta motas de ese color hacia la varita
 - [ ] El bloque que aún tiene otros elementos suelta motas grises según lo que perdió, y la fila de la varita muestra lo que queda
-- [ ] Al cumplir los 3 s salen 3 flechas, una cada 0,5 s, y después de eso no se absorbe más
+- [ ] Al cumplir los 3 s salen 3 bolts del elemento recolectado. Tierra: parábola de flecha, 2 corazones. Agua: parábola alta, impacto 1,5 corazones y área 3×3 de medio corazón. Fuego: recto, se frena, medio corazón y 4 s de quemadura. Los tres ignoran armadura. Tope 15 bloques, y después no absorbe más
 - [ ] `/element unlock 1` descubre los 8 elementos actuales; `/element unlock 2` avisa que ese nivel no existe
 
 ---
@@ -247,7 +247,7 @@ src/main/java/dev/sdfg/mod/
     WarpEntity.java
     WarpSubtype.java
     ModEntities.java
-    ElementArrow.java          # flecha del pergamino; no se recoge; deja motas
+    ElementArrow.java          # proyectil de Bolt; 15 bloques, 1 corazón; no se recoge
   worldgen/
     WarpPlacement.java         # fórmula seed → sitio
     WarpSurfaceFeature.java    # spawn superficie
@@ -265,7 +265,7 @@ src/main/java/dev/sdfg/mod/
     PipeNetwork.java
   item/
     WandItem.java              # palo; sin receta; suma lo que queda del 3×3×3; canaliza 3 s
-    WandChannel.java           # cada segundo 10 al azar; 3 flechas al terminar; luego no absorbe
+    WandChannel.java           # cada segundo 10 al azar; 3 geometrías al terminar; luego no absorbe
     ScrollItem.java            # pergaminos; bolt pide tierra, fuego y agua
   resources/data/sdfg/
     advancement/progress/root.json
@@ -307,6 +307,11 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-01 | Cada bolt vuela y pega distinto: agua en parábola con área 3×3, tierra como flecha (2 corazones), fuego recto que se frena y quema; el daño ignora armadura | `ElementArrow` |
+| 2026-10-01 | El rastro del bolt es del mismo elemento: tierra motas rojas, fuego llamas, agua burbujas | `ElementArrow.tick` |
+| 2026-10-01 | Los 3 bolts salen del elemento recolectado, no uno de tierra, uno de fuego y uno de agua fijos | `WandChannel` anota lo tomado y `shots` arma la salva |
+| 2026-10-01 | Si Bolt es de un solo elemento, dispara 3 de ese; el cubo de agua más chico y la tierra un sólido 3D opaco | `WandChannel.shots`; `ElementArrowRenderer` |
+| 2026-10-01 | Bolt tira geometrías, no flechas: púa, llamas y cuadrado de agua | 15 bloques, 1 corazón; `ElementArrowRenderer` |
 | 2026-10-01 | Un readme de pergaminos en plan | `plan/SCROLL_README.md` |
 | 2026-10-01 | Tras los 3 s y las 3 flechas, la varita no sigue absorbiendo | Una flecha por elemento; hay que soltar el clic para canalizar otra vez |
 | 2026-10-01 | Las flechas salen al terminar los 3 s, y la absorción es de 10 en 10 al azar cada segundo | Seis tiros en anillo tras la canalización; cada segundo 10 de cada elemento, bloques al azar |

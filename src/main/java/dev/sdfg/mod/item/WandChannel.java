@@ -38,7 +38,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * One right-click channel. The player stays at the spot where it started and may only look.
  * Once each second it takes 10 of each scroll element, in a random order, from random blocks
  * in the cube, so a block only loses a little and the rest stay. After the three seconds
- * one arrow leaves per scroll element, half a second apart, and nothing is absorbed after that.
+ * three bolts leave, half a second apart, and nothing is absorbed after that.
+ * Those bolts are the element that was actually taken: only earth means three earth bolts.
  * Letting go keeps what was already taken and fires nothing.
  */
 @EventBusSubscriber(modid = ExampleMod.MODID)
@@ -124,7 +125,10 @@ public final class WandChannel {
         }
         WAIT_FOR_RELEASE.add(player.getUUID());
         SAW_RELEASE.remove(player.getUUID());
-        VOLLEYS.put(player.getUUID(), new Volley(cast.elements, player.getLookAngle()));
+        Element[] fired = shots(cast);
+        if (fired.length > 0) {
+            VOLLEYS.put(player.getUUID(), new Volley(fired, player.getLookAngle()));
+        }
     }
 
     @SubscribeEvent
@@ -165,12 +169,16 @@ public final class WandChannel {
         for (Element element : elements) {
             shuffle(cells, random);
             int left = BITE;
+            int took = 0;
             for (BlockPos pos : cells) {
                 if (left <= 0) {
                     break;
                 }
-                left -= drain(level, player, pos, element, left);
+                int bite = drain(level, player, pos, element, left);
+                left -= bite;
+                took += bite;
             }
+            cast.noteTaken(element, took);
         }
     }
 
@@ -209,6 +217,41 @@ public final class WandChannel {
         }
     }
 
+    /**
+     * Three bolts, built only from elements that were actually taken.
+     * One gathered element fills all three. Several share the three slots,
+     * and any leftover slot repeats the one that was taken the most.
+     */
+    private static Element[] shots(Cast cast) {
+        List<Element> gathered = new ArrayList<>();
+        for (Element element : cast.elements) {
+            if (cast.taken(element) > 0 && !gathered.contains(element)) {
+                gathered.add(element);
+            }
+        }
+        if (gathered.isEmpty()) {
+            return new Element[0];
+        }
+        Element[] bolts = new Element[3];
+        int cursor = 0;
+        for (Element element : gathered) {
+            if (cursor >= bolts.length) {
+                break;
+            }
+            bolts[cursor++] = element;
+        }
+        Element most = gathered.getFirst();
+        for (Element element : gathered) {
+            if (cast.taken(element) > cast.taken(most)) {
+                most = element;
+            }
+        }
+        while (cursor < bolts.length) {
+            bolts[cursor++] = most;
+        }
+        return bolts;
+    }
+
     private static void fire(ServerPlayer player, Volley volley, int shot) {
         Element[] elements = volley.elements;
         if (!(player.level() instanceof ServerLevel level) || elements.length == 0) {
@@ -221,8 +264,7 @@ public final class WandChannel {
         double z = player.getZ() + Math.sin(angle) * ARROW_RING;
         ElementArrow arrow = new ElementArrow(level, player, element);
         arrow.setPos(x, y, z);
-        arrow.shoot(volley.look.x, volley.look.y, volley.look.z, 2.2F, 0.0F);
-        arrow.pickup = ElementArrow.Pickup.DISALLOWED;
+        arrow.launch(volley.look);
         level.addFreshEntity(arrow);
     }
 
@@ -359,6 +401,8 @@ public final class WandChannel {
         final Element[] elements;
         final BlockPos[] order;
         final Vec3 anchor;
+        /** How much of each element this channel actually took. */
+        final int[] taken = new int[Element.values().length];
         /** Ticks of channeling when the next bite lands. The first one is at one second. */
         int nextBiteAt = BITE_INTERVAL;
 
@@ -366,6 +410,16 @@ public final class WandChannel {
             this.elements = elements;
             this.order = order;
             this.anchor = anchor;
+        }
+
+        void noteTaken(Element element, int amount) {
+            if (amount > 0) {
+                this.taken[element.ordinal()] += amount;
+            }
+        }
+
+        int taken(Element element) {
+            return this.taken[element.ordinal()];
         }
     }
 
