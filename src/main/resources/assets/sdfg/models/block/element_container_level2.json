@@ -5,7 +5,7 @@
     "particle": "minecraft:block/glass",
     "liquid": {
       "force_translucent": true,
-      "sprite": "minecraft:block/water_still"
+      "sprite": "sdfg:block/essence"
     }
   },
   "elements": [

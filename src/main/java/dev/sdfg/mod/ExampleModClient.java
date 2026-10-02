@@ -85,8 +85,8 @@ public class ExampleModClient {
 
     @SubscribeEvent
     static void registerFluidModels(RegisterFluidModelsEvent event) {
-        Material still = new Material(Identifier.withDefaultNamespace("block/water_still"));
-        Material flow = new Material(Identifier.withDefaultNamespace("block/water_flow"));
+        Material still = new Material(Identifier.fromNamespaceAndPath(ExampleMod.MODID, "block/essence"));
+        Material flow = still;
         Material overlay = new Material(Identifier.withDefaultNamespace("block/water_overlay"));
         for (ModFluids.PureLiquid liquid : ModFluids.ALL) {
             FluidModel.Unbaked model = new FluidModel.Unbaked(

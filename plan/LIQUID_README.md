@@ -5,7 +5,7 @@ Hay uno por cada id del catálogo: fire, water, earth, wind, light, darkness, mi
 
 Cada uno lleva **100** de su elemento y nada más. No es una mezcla.
 
-El cuerpo es agua. Se ven iguales entre sí. Lo que los separa son las **partículas** del color de ese elemento.
+El cuerpo es una esfera. Las ocho usan el mismo sprite, y el color de cada elemento lo tiñe.
 
 ---
 
@@ -28,27 +28,27 @@ El fluido del elemento water **no** es el agua vanilla. Solo se parece.
 
 ## En una frase
 
-Agua de Minecraft, con motes del color del elemento mientras el bloque existe.
+Una esfera teñida del color del elemento, con motes de ese color mientras el bloque existe.
 
 ---
 
 ## Cuerpo
 
-Misma textura, forma y flujo que el agua. Sin tinte en el líquido.
+Una sola textura, `textures/block/essence.png`: la esfera en blanco y gris, con contorno negro y el alrededor transparente. Minecraft multiplica ese gris por el color del elemento, así que el mismo PNG es fuego, agua, tierra y el resto. El blanco del brillo queda del color pleno, el gris queda más oscuro y el negro no cambia.
+
+El casco y la varita leen el bloque con la misma función (`BlockResidue.amounts`) y dibujan el icono propio de cada elemento en `textures/gui/element/element_<id>.png`.
 
 - Fluye como el agua.
 - Es **finito**: un source no genera océanos infinitos.
-- Source y flowing se ven igual de transparentes y azules que el agua.
+- El tanque de vidrio usa la misma esfera, teñida con la mezcla que guarda.
 
 ---
 
 ## Partículas
 
-Mientras el bloque de líquido está colocado (source **y** flowing), emite motes del color del elemento.
+Mientras el bloque de líquido está colocado (source **y** flowing), emite motes del color del elemento. El cuerpo ya se distingue por el tinte; las motes lo repiten.
 
-Eso es lo único que los distingue. Sin las partículas, los ocho son agua.
-
-El color vive en el enum `Element`, alineado con el icono 16×16 de `assets/sdfg/textures/gui/element/<id>.png`.
+El color vive en el enum `Element`, alineado con el icono 16×16 de `assets/sdfg/textures/gui/element/element_<id>.png`.
 
 Oscuridad usa un violeta un poco más claro que el centro del icono, para que el mote se lea sobre el agua.
 

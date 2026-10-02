@@ -307,6 +307,11 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-02 | Iconos de elemento con prefijo `element_`; se deja el recolor del icono | `textures/gui/element/element_<id>.png`; `ElementStripHud` |
+| 2026-10-02 | La esfera de las esencias usa el sprite nuevo; solo se le quita el color y se conserva el dibujo | `textures/block/essence.png` |
+| 2026-10-02 | Casco y varita leen el bloque igual y muestran la esfera teñida de cada elemento; el caldero también | `BlockResidue.amounts`; `ElementStripHud`; modelos del caldero |
+| 2026-10-02 | Las esencias usan una sola esfera en gris, teñida por el color de cada elemento | `textures/block/essence.png`; fluidos y tanque |
+| 2026-10-02 | Separar `sprites-temp` en imágenes sueltas en `sprites/`, con el tamaño delante del nombre, y cortar los mapas con JSON | `sprites/`; `sprites-temp/` en `.gitignore` |
 | 2026-10-01 | Cada bolt vuela y pega distinto: agua en parábola con área 3×3, tierra como flecha (2 corazones), fuego recto que se frena y quema; el daño ignora armadura | `ElementArrow` |
 | 2026-10-01 | El rastro del bolt es del mismo elemento: tierra motas rojas, fuego llamas, agua burbujas | `ElementArrow.tick` |
 | 2026-10-01 | Los 3 bolts salen del elemento recolectado, no uno de tierra, uno de fuego y uno de agua fijos | `WandChannel` anota lo tomado y `shots` arma la salva |

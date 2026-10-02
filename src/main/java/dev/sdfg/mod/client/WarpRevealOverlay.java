@@ -2,10 +2,9 @@ package dev.sdfg.mod.client;
 
 import dev.sdfg.mod.block.CauldronLidBlock;
 import dev.sdfg.mod.block.ElementContainerBlock;
-import dev.sdfg.mod.block.ElementContainerBlockEntity;
 import dev.sdfg.mod.block.HeatedCauldronBlock;
-import dev.sdfg.mod.block.HeatedCauldronBlockEntity;
 import dev.sdfg.mod.ExampleMod;
+import dev.sdfg.mod.element.BlockResidue;
 import dev.sdfg.mod.element.ElementAmounts;
 import dev.sdfg.mod.element.ElementLookup;
 import dev.sdfg.mod.entity.WarpEntity;
@@ -130,23 +129,17 @@ public final class WarpRevealOverlay {
     private static RevealTarget fromBlock(LocalPlayer player, BlockHitResult blockHit) {
         BlockPos pos = blockHit.getBlockPos();
         BlockState state = player.level().getBlockState(pos);
-        if (state.getBlock() instanceof HeatedCauldronBlock) {
-            return cauldronReveal(player, pos, blockHit);
-        }
+        String title = "Block Reveal";
         if (state.getBlock() instanceof CauldronLidBlock) {
-            return cauldronReveal(player, pos.below(), blockHit);
+            pos = pos.below();
+            state = player.level().getBlockState(pos);
+            title = "Cauldron";
+        } else if (state.getBlock() instanceof HeatedCauldronBlock) {
+            title = "Cauldron";
+        } else if (state.getBlock() instanceof ElementContainerBlock) {
+            title = "Container";
         }
-        if (state.getBlock() instanceof ElementContainerBlock) {
-            if (player.level().getBlockEntity(pos) instanceof ElementContainerBlockEntity container) {
-                ElementAmounts contents = container.contents();
-                if (!contents.isEmpty()) {
-                    double dist = player.getEyePosition(1.0F).distanceTo(blockHit.getLocation());
-                    return RevealTarget.of("Container", "contents", contents, dist);
-                }
-            }
-            return null;
-        }
-        ElementAmounts amounts = ElementLookup.of(state);
+        ElementAmounts amounts = BlockResidue.amounts(player.level(), pos);
         if (amounts.isEmpty()) {
             return null;
         }
@@ -155,18 +148,7 @@ public final class WarpRevealOverlay {
             item = bucketOf(state.getFluidState());
         }
         double dist = player.getEyePosition(1.0F).distanceTo(blockHit.getLocation());
-        return RevealTarget.of("Block Reveal", idOf(item), amounts, dist);
-    }
-
-    private static RevealTarget cauldronReveal(LocalPlayer player, BlockPos pos, BlockHitResult blockHit) {
-        if (player.level().getBlockEntity(pos) instanceof HeatedCauldronBlockEntity cauldron) {
-            ElementAmounts contents = cauldron.contents();
-            if (!contents.isEmpty()) {
-                double dist = player.getEyePosition(1.0F).distanceTo(blockHit.getLocation());
-                return RevealTarget.of("Cauldron", "contents", contents, dist);
-            }
-        }
-        return null;
+        return RevealTarget.of(title, idOf(item), amounts, dist);
     }
 
     /** Main-hand bucket, when the crosshair is not already on something with elements. */

@@ -27,7 +27,7 @@ public enum Element {
         this.id = id;
         this.number = number;
         this.color = color;
-        this.iconTexture = Identifier.fromNamespaceAndPath(ExampleMod.MODID, "textures/gui/element/" + id + ".png");
+        this.iconTexture = Identifier.fromNamespaceAndPath(ExampleMod.MODID, "textures/gui/element/element_" + id + ".png");
     }
 
     public String id() {
@@ -52,7 +52,7 @@ public enum Element {
         return this.color;
     }
 
-    /** 16×16 HUD icon under {@code assets/sdfg/textures/gui/element/<id>.png}. */
+    /** 16×16 HUD icon under {@code assets/sdfg/textures/gui/element/element_<id>.png}. */
     public Identifier iconTexture() {
         return this.iconTexture;
     }
