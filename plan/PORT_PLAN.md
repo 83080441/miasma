@@ -225,6 +225,7 @@ Checklist visual:
 - [ ] Clic derecho en el vidrio: un vial vacío saca hasta 100, en la proporción de la mezcla
 - [ ] Con el casco, al mirar un bloque solo aparecen los elementos que tiene; el que no está no deja un `?`
 - [ ] Con la varita, la fila solo muestra elementos conocidos del 3×3×3; uno desconocido no deja un `?`
+- [ ] Con la varita, bajo cada cantidad aparece el nombre localizado del elemento (`element.sdfg.<id>`)
 - [ ] El pergamino Bolt usa la página en blanco y su línea dice los elementos tierra, fuego y agua
 - [ ] Clic derecho con la varita y Bolt en la casilla 1, 2 o 3: 3 s quieto; soltar no devuelve lo ya comido y no tira flechas
 - [ ] Cada segundo resta 10 de cada elemento del pergamino, en orden al azar y de bloques al azar del 3×3×3
@@ -283,11 +284,11 @@ src/main/java/dev/sdfg/mod/
     WarpEchoState.java
     WarpEchoSoundInstance.java
     WarpEchoSounds.java
-    WandOverlay.java           # fila de ElementStripHud con lo que queda en el 3×3×3
+    WandOverlay.java           # fila de ElementStripHud con lo que queda en el 3×3×3 (+ nombres)
     FlightMoteParticle.java    # mota que vuela hacia la varita o detrás de la flecha
     DrainWash.java             # motas grises según la energía que el bloque perdió
     ChannelInputLock.java      # anula caminar y saltar mientras se canaliza
-    ElementStripHud.java       # fila compartida de icono + cantidad
+    ElementStripHud.java       # fila compartida de icono + cantidad; la varita también pone el nombre
 src/main/resources/assets/sdfg/particles/warp_mote.json
 ```
 
@@ -307,6 +308,7 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-02 | Con la varita, bajo el número mostrar el nombre del elemento | `ElementStripHud` (`showNames`); `Element.displayName`; checklist §5 |
 | 2026-10-02 | Iconos de elemento con prefijo `element_`; se deja el recolor del icono | `textures/gui/element/element_<id>.png`; `ElementStripHud` |
 | 2026-10-02 | La esfera de las esencias usa el sprite nuevo; solo se le quita el color y se conserva el dibujo | `textures/block/essence.png` |
 | 2026-10-02 | Casco y varita leen el bloque igual y muestran la esfera teñida de cada elemento; el caldero también | `BlockResidue.amounts`; `ElementStripHud`; modelos del caldero |

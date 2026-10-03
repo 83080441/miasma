@@ -37,7 +37,8 @@ public final class WandOverlay {
                 WandItem.survey(player),
                 player,
                 true,
-                false
+                false,
+                true
         );
     }
 }

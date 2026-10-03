@@ -1,6 +1,7 @@
 package dev.sdfg.mod.element;
 
 import dev.sdfg.mod.ExampleMod;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 /**
@@ -55,6 +56,11 @@ public enum Element {
     /** 16×16 HUD icon under {@code assets/sdfg/textures/gui/element/element_<id>.png}. */
     public Identifier iconTexture() {
         return this.iconTexture;
+    }
+
+    /** Localized display name ({@code element.sdfg.<id>}). */
+    public Component displayName() {
+        return Component.translatable("element.sdfg." + this.id);
     }
 
     /**

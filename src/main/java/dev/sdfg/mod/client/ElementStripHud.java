@@ -15,16 +15,19 @@ import net.minecraft.network.chat.Component;
 /**
  * Shared element row: icon and amount for each element that is actually present.
  * Absent elements are left out. An undiscovered element on a helmet target is a
- * single obfuscated mark; the wand never draws that mark.
+ * single obfuscated mark; the wand never draws that mark, and can also show the
+ * localized name under the amount.
  */
 public final class ElementStripHud {
     public static final int BELOW_CROSSHAIR = 14;
 
     private static final int AMOUNT_COLOR = 0xFFE8E8F0;
+    private static final int NAME_COLOR = 0xFFC8C8D8;
     private static final int ICON_SIZE = 16;
     private static final int ICON_TEX = 16;
     private static final int SLOT_GAP = 6;
     private static final int AMOUNT_GAP = 2;
+    private static final int NAME_GAP = 1;
 
     private ElementStripHud() {
     }
@@ -49,13 +52,14 @@ public final class ElementStripHud {
         for (Element element : Element.values()) {
             totals[element.number() - 1] = amounts.get(element);
         }
-        draw(gui, font, centerX, topY, totals, player, true, true);
+        draw(gui, font, centerX, topY, totals, player, true, true, false);
     }
 
     /**
      * @param onlyDiscovered when true, an undiscovered element is not shown as its icon
      * @param markUnknown when true, that undiscovered element is an obfuscated mark;
      *                    when false, it is omitted
+     * @param showNames when true, the localized element name is drawn under the amount
      */
     public static void draw(
             GuiGraphicsExtractor gui,
@@ -66,6 +70,20 @@ public final class ElementStripHud {
             LocalPlayer player,
             boolean onlyDiscovered,
             boolean markUnknown
+    ) {
+        draw(gui, font, centerX, topY, totals, player, onlyDiscovered, markUnknown, false);
+    }
+
+    public static void draw(
+            GuiGraphicsExtractor gui,
+            Font font,
+            int centerX,
+            int topY,
+            int[] totals,
+            LocalPlayer player,
+            boolean onlyDiscovered,
+            boolean markUnknown,
+            boolean showNames
     ) {
         if (totals == null) {
             return;
@@ -95,11 +113,16 @@ public final class ElementStripHud {
         for (Slot slot : slots) {
             if (!slot.unknown) {
                 slotWidth = Math.max(slotWidth, font.width(String.valueOf(slot.amount)));
+                if (showNames) {
+                    slotWidth = Math.max(slotWidth, font.width(slot.element.displayName()));
+                }
             }
         }
 
         int totalWidth = slots.size() * slotWidth + (slots.size() - 1) * SLOT_GAP;
         int x = centerX - totalWidth / 2;
+        int amountY = topY + ICON_SIZE + AMOUNT_GAP;
+        int nameY = amountY + font.lineHeight + NAME_GAP;
         for (Slot slot : slots) {
             if (slot.unknown) {
                 gui.text(
@@ -124,7 +147,11 @@ public final class ElementStripHud {
                         ICON_TEX
                 );
                 String label = String.valueOf(slot.amount);
-                gui.text(font, label, x + (slotWidth - font.width(label)) / 2, topY + ICON_SIZE + AMOUNT_GAP, AMOUNT_COLOR, true);
+                gui.text(font, label, x + (slotWidth - font.width(label)) / 2, amountY, AMOUNT_COLOR, true);
+                if (showNames) {
+                    Component name = slot.element.displayName();
+                    gui.text(font, name, x + (slotWidth - font.width(name)) / 2, nameY, NAME_COLOR, true);
+                }
             }
             x += slotWidth + SLOT_GAP;
         }
