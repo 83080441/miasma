@@ -31,6 +31,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import dev.sdfg.mod.block.CauldronLidBlock;
 import dev.sdfg.mod.block.CondensationFilterBlock;
+import dev.sdfg.mod.block.CrystallizationPedestalBlock;
 import dev.sdfg.mod.block.ElementContainerBlock;
 import dev.sdfg.mod.block.ElementCrystalBlock;
 import dev.sdfg.mod.block.ElementPipeBlock;
@@ -121,6 +122,15 @@ public class ExampleMod {
     public static final DeferredItem<BlockItem> ELEMENT_CRYSTAL_ITEM =
             ITEMS.registerSimpleBlockItem("element_crystal", ELEMENT_CRYSTAL);
 
+    /** Pedestal that holds one quartz gem; the crystal grows in the air above it. */
+    public static final DeferredBlock<CrystallizationPedestalBlock> CRYSTALLIZATION_PEDESTAL = BLOCKS.registerBlock(
+            "crystallization_pedestal",
+            CrystallizationPedestalBlock::new,
+            CrystallizationPedestalBlock::pedestalProperties
+    );
+    public static final DeferredItem<BlockItem> CRYSTALLIZATION_PEDESTAL_ITEM =
+            ITEMS.registerSimpleBlockItem("crystallization_pedestal", CRYSTALLIZATION_PEDESTAL);
+
     /** Corked vial. Holds up to 100 of a container's mix. No recipe yet. */
     public static final DeferredItem<VialItem> VIAL = ITEMS.registerItem("vial", VialItem::new);
 
@@ -155,6 +165,7 @@ public class ExampleMod {
                 output.accept(VALVE_PIPE_ITEM.get());
                 output.accept(ELEMENT_CONTAINER_ITEM.get());
                 output.accept(CONDENSATION_FILTER_ITEM.get());
+                output.accept(CRYSTALLIZATION_PEDESTAL_ITEM.get());
                 output.accept(ELEMENT_CRYSTAL_ITEM.get());
                 output.accept(VIAL.get());
                 output.accept(WAND.get());

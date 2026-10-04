@@ -6,14 +6,13 @@ import java.util.List;
 import dev.sdfg.mod.element.Element;
 import dev.sdfg.mod.particle.ModParticles;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.PointedDripstoneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -21,72 +20,129 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Locks onto one present element from the tank above or a networked container,
- * then drips it into the air block below. Ten drips finish a solid crystal when
- * a sturdy block sits under that empty space.
+ * then drips it like cave dripstone into the air block below. Transfer chance
+ * matches pointed dripstone filling a cauldron (water / lava odds).
  */
 public class CondensationFilterBlockEntity extends BlockEntity {
     /** Liquid taken from the source per successful drip. */
     public static final int DROP_AMOUNT = 10;
-    /** Soonest wait between drips, in ticks. */
-    public static final int DRIP_MIN = 20;
-    /** Latest wait between drips, in ticks. */
-    public static final int DRIP_MAX = 40;
+    /**
+     * Same as vanilla: {@code 50 + fallDistance}. Our tip to crystal gap is 1 block.
+     */
+    public static final int FALL_DELAY = 50 + 1;
+    /** Spout tip Y inside the filter block (pixels / 16). */
+    public static final double TIP_Y = 2.0 / 16.0;
 
     private Element locked;
-    private int cooldown;
+    /** Element currently in flight as a hanging/falling drop. */
+    private Element pendingElement;
 
     public CondensationFilterBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.CONDENSATION_FILTER.get(), pos, state);
-        this.cooldown = DRIP_MIN;
     }
 
-    public void serverTick() {
+    /**
+     * Called from the block's {@code randomTick}. {@code randomValue} is one
+     * {@link net.minecraft.util.RandomSource#nextFloat()} like dripstone uses.
+     */
+    public void maybeBeginDrip(float randomValue) {
         Level level = this.level;
-        if (level == null || level.isClientSide()) {
+        if (!(level instanceof ServerLevel server) || this.pendingElement != null) {
             return;
         }
-        if (this.cooldown > 0) {
-            this.cooldown--;
-            return;
-        }
-        this.cooldown = nextWait(level.getRandom());
 
+        DripPlan plan = planDrip(level);
+        if (plan == null) {
+            return;
+        }
+        float chance = transferChance(plan.element);
+        if (randomValue >= chance) {
+            return;
+        }
+
+        this.locked = plan.element;
+        this.pendingElement = plan.element;
+        spawnHangDrop(server, plan.element);
+        server.scheduleTick(this.worldPosition, this.getBlockState().getBlock(), FALL_DELAY);
+        this.setChanged();
+    }
+
+    /** Called when the scheduled fall delay finishes. */
+    public void landDrop() {
+        Level level = this.level;
+        if (!(level instanceof ServerLevel)) {
+            return;
+        }
+        Element element = this.pendingElement;
+        this.pendingElement = null;
+        if (element == null) {
+            this.setChanged();
+            return;
+        }
+
+        DripPlan plan = planDrip(level);
+        if (plan == null || plan.element != element) {
+            this.setChanged();
+            return;
+        }
+
+        int taken = plan.source.drain(element, DROP_AMOUNT);
+        if (taken <= 0) {
+            this.setChanged();
+            return;
+        }
+        if (plan.starting) {
+            plan.pedestal.consumeQuartz();
+        }
+        growCrystal(level, plan.crystalPos, plan.crystalState, element);
+        level.playSound(
+                null,
+                plan.crystalPos,
+                SoundEvents.POINTED_DRIPSTONE_DRIP_WATER,
+                SoundSource.BLOCKS,
+                0.4F,
+                0.9F + level.getRandom().nextFloat() * 0.2F
+        );
+        this.setChanged();
+    }
+
+    private DripPlan planDrip(Level level) {
         ElementContainerBlockEntity source = findSource(level);
         if (source == null || source.contents().isEmpty()) {
-            return;
+            return null;
         }
 
         BlockPos crystalPos = this.worldPosition.below();
         BlockPos supportPos = crystalPos.below();
         BlockState crystalState = level.getBlockState(crystalPos);
-        BlockState support = level.getBlockState(supportPos);
-        if (!support.isFaceSturdy(level, supportPos, Direction.UP)) {
-            return;
+        if (!(level.getBlockEntity(supportPos) instanceof CrystallizationPedestalBlockEntity pedestal)) {
+            return null;
+        }
+        boolean starting = crystalState.isAir();
+        if (starting && !pedestal.hasQuartz()) {
+            return null;
         }
 
         Element element = resolveElement(level, source, crystalState);
         if (element == null || source.contents().get(element) <= 0) {
-            return;
+            return null;
         }
         if (crystalState.getBlock() instanceof ElementCrystalBlock) {
             if (ElementCrystalBlock.elementOf(crystalState) != element) {
-                return;
+                return null;
             }
             if (ElementCrystalBlock.isSolid(crystalState)) {
-                return;
+                return null;
             }
-        } else if (!crystalState.isAir()) {
-            return;
+        } else if (!starting) {
+            return null;
         }
+        return new DripPlan(source, pedestal, crystalPos, crystalState, element, starting);
+    }
 
-        int taken = source.drain(element, DROP_AMOUNT);
-        if (taken <= 0) {
-            return;
-        }
-        this.locked = element;
-        growCrystal(level, crystalPos, crystalState, element);
-        dripFx(level, element);
-        this.setChanged();
+    /** Same odds as dripstone lava into a cauldron (~5.9% per random tick). */
+    public static float transferChance(Element element) {
+        return PointedDripstoneBlock.LAVA_TRANSFER_PROBABILITY_PER_RANDOM_TICK;
     }
 
     private Element resolveElement(Level level, ElementContainerBlockEntity source, BlockState crystalState) {
@@ -108,11 +164,7 @@ public class CondensationFilterBlockEntity extends BlockEntity {
 
     private static void growCrystal(Level level, BlockPos crystalPos, BlockState crystalState, Element element) {
         if (crystalState.isAir()) {
-            level.setBlock(
-                    crystalPos,
-                    ElementCrystalBlock.fresh(element),
-                    Block.UPDATE_ALL
-            );
+            level.setBlock(crystalPos, ElementCrystalBlock.fresh(element), Block.UPDATE_ALL);
             return;
         }
         if (crystalState.getBlock() instanceof ElementCrystalBlock) {
@@ -133,30 +185,19 @@ public class CondensationFilterBlockEntity extends BlockEntity {
         return null;
     }
 
-    private void dripFx(Level level, Element element) {
-        level.playSound(null, this.worldPosition, SoundEvents.POINTED_DRIPSTONE_DRIP_WATER, SoundSource.BLOCKS, 0.35F, 1.2F);
-        if (!(level instanceof ServerLevel server)) {
-            return;
-        }
-        int color = 0xFF000000 | element.color();
+    private void spawnHangDrop(ServerLevel server, Element element) {
         server.sendParticles(
-                ColorParticleOption.create(ModParticles.ELEMENT_MOTE.get(), color),
+                dripOf(element),
                 this.worldPosition.getX() + 0.5,
-                this.worldPosition.getY() + 0.15,
+                this.worldPosition.getY() + TIP_Y,
                 this.worldPosition.getZ() + 0.5,
-                3, 0.05, 0.15, 0.05, 0.01
-        );
-        server.sendParticles(
-                ColorParticleOption.create(ModParticles.ELEMENT_MOTE.get(), color),
-                this.worldPosition.getX() + 0.5,
-                this.worldPosition.getY() - 0.35,
-                this.worldPosition.getZ() + 0.5,
-                2, 0.04, 0.2, 0.04, 0.0
+                1, 0.0, 0.0, 0.0, 0.0
         );
     }
 
-    private static int nextWait(RandomSource random) {
-        return DRIP_MIN + random.nextInt(DRIP_MAX - DRIP_MIN + 1);
+    /** Hang drip tinted with the element / liquid color. */
+    public static ColorParticleOption dripOf(Element element) {
+        return ColorParticleOption.create(ModParticles.ELEMENT_DRIP_HANG.get(), 0xFF000000 | element.color());
     }
 
     @Override
@@ -165,7 +206,9 @@ public class CondensationFilterBlockEntity extends BlockEntity {
         if (this.locked != null) {
             output.putString("Locked", this.locked.id());
         }
-        output.putInt("Cooldown", this.cooldown);
+        if (this.pendingElement != null) {
+            output.putString("Pending", this.pendingElement.id());
+        }
     }
 
     @Override
@@ -173,6 +216,17 @@ public class CondensationFilterBlockEntity extends BlockEntity {
         super.loadAdditional(input);
         String lockedId = input.getStringOr("Locked", "");
         this.locked = lockedId.isEmpty() ? null : Element.byId(lockedId);
-        this.cooldown = Math.max(0, input.getIntOr("Cooldown", DRIP_MIN));
+        String pendingId = input.getStringOr("Pending", "");
+        this.pendingElement = pendingId.isEmpty() ? null : Element.byId(pendingId);
+    }
+
+    private record DripPlan(
+            ElementContainerBlockEntity source,
+            CrystallizationPedestalBlockEntity pedestal,
+            BlockPos crystalPos,
+            BlockState crystalState,
+            Element element,
+            boolean starting
+    ) {
     }
 }

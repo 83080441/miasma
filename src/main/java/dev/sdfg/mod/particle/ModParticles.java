@@ -34,6 +34,14 @@ public final class ModParticles {
     public static final DeferredHolder<ParticleType<?>, ParticleType<ColorParticleOption>> DRAIN_WASH =
             PARTICLE_TYPES.register("drain_wash", ColoredParticleType::new);
 
+    /** Hang drip (cave style), tinted with an element color. Spawns {@link #ELEMENT_DRIP_FALL}. */
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorParticleOption>> ELEMENT_DRIP_HANG =
+            PARTICLE_TYPES.register("element_drip_hang", ColoredParticleType::new);
+
+    /** Falling drip after the hang, tinted with the same element color. */
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorParticleOption>> ELEMENT_DRIP_FALL =
+            PARTICLE_TYPES.register("element_drip_fall", ColoredParticleType::new);
+
     private ModParticles() {
     }
 

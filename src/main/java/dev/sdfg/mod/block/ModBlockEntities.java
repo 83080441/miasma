@@ -36,6 +36,12 @@ public final class ModBlockEntities {
                     Set.of(ExampleMod.CONDENSATION_FILTER.get())
             ));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CrystallizationPedestalBlockEntity>> CRYSTALLIZATION_PEDESTAL =
+            BLOCK_ENTITIES.register("crystallization_pedestal", () -> new BlockEntityType<>(
+                    CrystallizationPedestalBlockEntity::new,
+                    Set.of(ExampleMod.CRYSTALLIZATION_PEDESTAL.get())
+            ));
+
     private ModBlockEntities() {
     }
 }

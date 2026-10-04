@@ -1,8 +1,10 @@
 package dev.sdfg.mod.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.sdfg.mod.element.Element;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -12,8 +14,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
@@ -22,8 +22,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * Spout under a tank or on a pipe line. Pulls one locked element and drips it into
- * the empty block below, where an element crystal grows on the support underneath.
+ * Spout under a tank or on a pipe line. Pulls one locked element and drips it
+ * with the same random-tick chance as dripstone filling a cauldron.
  */
 public class CondensationFilterBlock extends Block implements EntityBlock {
     public static final MapCodec<CondensationFilterBlock> CODEC = simpleCodec(CondensationFilterBlock::new);
@@ -43,7 +43,8 @@ public class CondensationFilterBlock extends Block implements EntityBlock {
                 .mapColor(MapColor.METAL)
                 .strength(1.5F)
                 .sound(SoundType.COPPER)
-                .noOcclusion();
+                .noOcclusion()
+                .randomTicks();
     }
 
     @Override
@@ -70,20 +71,51 @@ public class CondensationFilterBlock extends Block implements EntityBlock {
         return state;
     }
 
+    /**
+     * Same ambient odds as pointed dripstone under a liquid source:
+     * {@code nextFloat() <= 0.12}.
+     */
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new CondensationFilterBlockEntity(pos, state);
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        if (!(level.getBlockEntity(pos.above()) instanceof ElementContainerBlockEntity tank)
+                || tank.contents().isEmpty()) {
+            return;
+        }
+        float roll = random.nextFloat();
+        if (roll > 0.12F) {
+            return;
+        }
+        Element element = tank.contents().primary().orElse(null);
+        if (element == null) {
+            return;
+        }
+        level.addParticle(
+                CondensationFilterBlockEntity.dripOf(element),
+                pos.getX() + 0.5,
+                pos.getY() + CondensationFilterBlockEntity.TIP_Y,
+                pos.getZ() + 0.5,
+                0.0,
+                0.0,
+                0.0
+        );
     }
 
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide()) {
-            return null;
+    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (level.getBlockEntity(pos) instanceof CondensationFilterBlockEntity filter) {
+            filter.maybeBeginDrip(random.nextFloat());
         }
-        return (world, pos, blockState, blockEntity) -> {
-            if (blockEntity instanceof CondensationFilterBlockEntity filter) {
-                filter.serverTick();
-            }
-        };
+    }
+
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (level.getBlockEntity(pos) instanceof CondensationFilterBlockEntity filter) {
+            filter.landDrop();
+        }
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new CondensationFilterBlockEntity(pos, state);
     }
 }

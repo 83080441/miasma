@@ -26,6 +26,7 @@
   "block.sdfg.element_valve": "Tubería de paso",
   "block.sdfg.element_container": "Contenedor",
   "block.sdfg.condensation_filter": "Filtro de condensación",
+  "block.sdfg.crystallization_pedestal": "Pedestal de cristalización",
   "block.sdfg.element_crystal": "Cristal de elemento",
   "item.sdfg.vial": "Vial",
   "item.sdfg.wand": "Varita",

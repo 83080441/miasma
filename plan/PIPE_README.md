@@ -22,14 +22,15 @@ Una tolva sobre el caldero elige un elemento al azar, lo saca y lo empuja por tu
 | Tubería de paso | `sdfg:element_valve` | Tubo con núcleo de cobre o de redstone | Sección con estados **abierta** y **cerrada**. Cerrada, el elemento no cruza. |
 | Contenedor | `sdfg:element_container` | Vidrio con el líquido dentro | Guarda lo que llega. Hasta **100** de cada elemento. El nivel y el color se ven en el bloque. |
 | Filtro de condensación | `sdfg:condensation_filter` | Pico de cobre/hierro | Va **bajo** el tanque (o pegado a tubos). Saca **un** líquido al azar y lo gotea. |
-| Cristal de elemento | `sdfg:element_crystal` | Brote → racimo (como amatista) | Crece en el aire bajo el filtro. A los **10** gotas queda sólido. |
+| Pedestal de cristalización | `sdfg:crystallization_pedestal` | Pedestal de cuarzo | Sostiene **un** cuarzo acostado (seed). La primera gota lo consume. |
+| Cristal de elemento | `sdfg:element_crystal` | Brote → racimo (como amatista) | Crece en el aire sobre el cuarzo del pedestal. A los **10** gotas queda sólido. |
 
 Están en la pestaña del mod.
 
-| Locale | Tapa | Tubería | Tubería de paso | Contenedor | Filtro | Cristal |
-|--------|------|---------|----------------|------------|--------|---------|
-| es | Tapa del caldero | Tubería | Tubería de paso | Contenedor | Filtro de condensación | Cristal de elemento |
-| en | Cauldron Lid | Pipe | Valve Pipe | Container | Condensation Filter | Element Crystal |
+| Locale | Tapa | Tubería | Tubería de paso | Contenedor | Filtro | Pedestal | Cristal |
+|--------|------|---------|----------------|------------|--------|----------|---------|
+| es | Tapa del caldero | Tubería | Tubería de paso | Contenedor | Filtro de condensación | Pedestal de cristalización | Cristal de elemento |
+| en | Cauldron Lid | Pipe | Valve Pipe | Container | Condensation Filter | Crystallization Pedestal | Element Crystal |
 
 ---
 
@@ -110,15 +111,15 @@ El vial vacío se queda vacío si el contenedor no tiene nada. El líquido del i
 Estructura (de arriba a abajo):
 
 1. **Filtro** — bajo el contenedor, o en la red de tubos.
-2. **Espacio vacío** — ahí crece el cristal (más adelante irá un seed; por ahora el aire basta).
-3. **Cualquier bloque** con cara superior sólida — si no hay soporte, no se forma nada.
+2. **Espacio vacío** — ahí crece el cristal, encima del cuarzo.
+3. **Pedestal de cristalización** con **un cuarzo** acostado encima — clic con cuarzo lo coloca; clic vacío lo saca. Sin cuarzo no arranca.
 
-Cada **1–2 s** (al azar):
+En cada **random tick** del filtro (igual que el dripstone sobre un caldero):
 
-- Toma líquido del tanque de encima, o del contenedor más cercano por tubos.
-- Elige **un** elemento al azar entre los que hay y se queda con ese hasta terminar o vaciarlo.
-- Gasta **10** de ese elemento por gota.
-- Si debajo hay aire (o el mismo cristal a medio crecer) y bajo eso un bloque sólido, avanza el cristal **1** edad.
+- Chance por random tick: **~5.9%** (`0.05859375`), igual que lava → caldero, para todos los elementos.
+- Si sale, cuelga una gota (sprite dripstone) **teñida del color del elemento** y cae (~51 ticks).
+- Al aterrizar gasta **10** de ese elemento.
+- La primera gota **consume el cuarzo** y pone el brote; las siguientes solo necesitan el pedestal.
 - Edad **1–3** brote chico, **4–6** medio, **7–9** grande, **10** racimo sólido (se puede minar y suelta el cristal).
 
 El cristal se tiñe con el color del elemento.
@@ -144,6 +145,7 @@ Con el casco y agachado:
 | Tubería de paso | `block/ValvePipeBlock.java` |
 | Contenedor | `block/ElementContainerBlock.java`, `block/ElementContainerBlockEntity.java` |
 | Filtro | `block/CondensationFilterBlock.java`, `block/CondensationFilterBlockEntity.java` |
+| Pedestal | `block/CrystallizationPedestalBlock.java`, `block/CrystallizationPedestalBlockEntity.java`; render `client/CrystallizationPedestalRenderer.java` |
 | Cristal | `block/ElementCrystalBlock.java`; tinte `client/ElementCrystalTint.java` |
 | Vial | `item/VialItem.java`; menú `inventory/VialMenu.java` |
 | Camino | `block/PipeNetwork.java` |

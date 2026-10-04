@@ -54,7 +54,9 @@ Paquete ya alineado: `dev.sdfg.mod` / namespace `sdfg`. Si el destino usa otro i
 | `block/ElementContainerBlock.java` | Contenedor de vidrio; `level` 0–4 muestra el líquido de la mezcla |
 | `block/CondensationFilterBlock.java` | Filtro bajo el tanque / en tubos; gotea un elemento |
 | `block/CondensationFilterBlockEntity.java` | Bloqueo de elemento, goteo 10 u, cristal en 10 gotas |
-| `block/ElementCrystalBlock.java` | Cristal edad 1–10 + elemento; age 10 = sólido |
+| `block/CrystallizationPedestalBlock.java` | Pedestal; solo acepta un cuarzo como seed |
+| `block/CrystallizationPedestalBlockEntity.java` | Slot de cuarzo + sync para el render |
+| `block/ElementCrystalBlock.java` | Cristal edad 1–10 + elemento; age 10 = sólido; solo sobre pedestal+cuarzo |
 | `block/PipeNetwork.java` | Camino tapa → tuberías → contenedor más cercano; el filtro también conecta |
 | `data/<modid>/advancement/progress/root.json` | Raíz de la pestaña de logros (fondo End, `minecraft:impossible`) |
 | `data/<modid>/advancement/progress/<elemento>.json` | Un logro por elemento (fuego…aether), hijo de la raíz, icono del balde puro |
@@ -229,8 +231,9 @@ Checklist visual:
 - [ ] Con el casco, al mirar un bloque solo aparecen los elementos que tiene; el que no está no deja un `?`
 - [ ] Con la varita, la fila solo muestra elementos conocidos del 3×3×3; uno desconocido no deja un `?`
 - [ ] Con la varita, bajo cada cantidad aparece el nombre localizado del elemento (`element.sdfg.<id>`)
-- [ ] Filtro de condensación bajo el tanque (o en tubos): elige un elemento al azar y gotea 10 u cada 1–2 s
-- [ ] Bajo el filtro, aire + bloque sólido debajo → cristal del elemento; 10 gotas = sólido minable; sin soporte no crece
+- [ ] Filtro de condensación: chance random-tick ~5.9% (lava→caldero) para todos los elementos; gota cae y gasta 10 u
+- [ ] Pedestal de cristalización con un cuarzo acostado; la primera gota lo consume y nace el brote; luego el cristal sigue sobre el pedestal
+- [ ] Bajo el filtro, aire + pedestal con cuarzo → cristal del elemento; 10 gotas = sólido minable
 - [ ] El pergamino Bolt usa la página en blanco y su línea dice los elementos tierra, fuego y agua
 - [ ] Clic derecho con la varita y Bolt en la casilla 1, 2 o 3: 3 s quieto; soltar no devuelve lo ya comido y no tira flechas
 - [ ] Cada segundo resta 10 de cada elemento del pergamino, en orden al azar y de bloques al azar del 3×3×3
@@ -270,7 +273,9 @@ src/main/java/dev/sdfg/mod/
     ElementContainerBlock.java # vidrio
     CondensationFilterBlock.java
     CondensationFilterBlockEntity.java
-    ElementCrystalBlock.java   # age 1–10; 10 = sólido
+    CrystallizationPedestalBlock.java
+    CrystallizationPedestalBlockEntity.java
+    ElementCrystalBlock.java   # age 1–10; 10 = sólido; pedestal+cuarzo
     PipeNetwork.java
   item/
     WandItem.java              # palo; sin receta; suma lo que queda del 3×3×3; canaliza 3 s
@@ -293,6 +298,7 @@ src/main/java/dev/sdfg/mod/
     WarpEchoSoundInstance.java
     WarpEchoSounds.java
     WandOverlay.java           # fila de ElementStripHud con lo que queda en el 3×3×3 (+ nombres)
+    CrystallizationPedestalRenderer.java # cuarzo encima del pedestal
     FlightMoteParticle.java    # mota que vuela hacia la varita o detrás de la flecha
     DrainWash.java             # motas grises según la energía que el bloque perdió
     ChannelInputLock.java      # anula caminar y saltar mientras se canaliza
@@ -316,6 +322,13 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-03 | Gotas del filtro teñidas con el color del elemento | `ELEMENT_DRIP_HANG` / `ELEMENT_DRIP_FALL`; `ElementDripParticle` |
+| 2026-10-03 | Chance del gotero = lava→caldero (~5.9%) para todos los elementos | `LAVA_TRANSFER_PROBABILITY_PER_RANDOM_TICK`; `CondensationFilter*` |
+| 2026-10-03 | Gotero del filtro: gotas dripstone (cuelgan y caen) antes de condensar | `CondensationFilter*`; `DRIPPING_DRIPSTONE_*` |
+| 2026-10-03 | Caldero y contenedor vuelven a usar sprite de agua (`water_still`), no essence | modelos `cauldron_*` y `element_container_level*` |
+| 2026-10-03 | Cuarzo acostado en el pedestal; se consume al nacer el primer cristal | `CrystallizationPedestalRenderer`; `consumeQuartz`; `canSurvive` solo pedestal |
+| 2026-10-03 | Pedestal: texturas 26.2 + quitar `@OnlyIn` del renderer | `crystallization_pedestal.json`; `CrystallizationPedestalRenderer` |
+| 2026-10-03 | Pedestal de cristalización con cuarzo; el cristal crece encima del cuarzo | `CrystallizationPedestal*`; filtro/cristal exigen pedestal+cuarzo; `PIPE_README` |
 | 2026-10-02 | Filtro de condensación bajo el tanque: gotea un líquido y forma cristal en 10 gotas | `CondensationFilter*`; `ElementCrystal*`; `PIPE_README`; checklist §5 |
 | 2026-10-02 | Con la varita, bajo el número mostrar el nombre del elemento | `ElementStripHud` (`showNames`); `Element.displayName`; checklist §5 |
 | 2026-10-02 | Iconos de elemento con prefijo `element_`; se deja el recolor del icono | `textures/gui/element/element_<id>.png`; `ElementStripHud` |

@@ -4,12 +4,15 @@ import java.util.List;
 
 import dev.sdfg.mod.client.CauldronBubbleParticle;
 import dev.sdfg.mod.client.CauldronWaterTint;
+import dev.sdfg.mod.client.CrystallizationPedestalRenderer;
 import dev.sdfg.mod.client.DrainWash;
+import dev.sdfg.mod.block.ModBlockEntities;
 import dev.sdfg.mod.item.WandChannel;
 import dev.sdfg.mod.client.DrainWashParticle;
 import dev.sdfg.mod.client.ElementArrowRenderer;
 import dev.sdfg.mod.client.ElementContainerTint;
 import dev.sdfg.mod.client.ElementCrystalTint;
+import dev.sdfg.mod.client.ElementDripParticle;
 import dev.sdfg.mod.client.FlightMoteParticle;
 import dev.sdfg.mod.client.ElementMoteParticle;
 import dev.sdfg.mod.client.GnomeModel;
@@ -73,6 +76,7 @@ public class ExampleModClient {
         event.registerEntityRenderer(ModEntities.ENTITY1.get(), WarpRenderer::new);
         event.registerEntityRenderer(ModEntities.GNOME.get(), GnomeRenderer::new);
         event.registerEntityRenderer(ModEntities.ELEMENT_ARROW.get(), ElementArrowRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.CRYSTALLIZATION_PEDESTAL.get(), CrystallizationPedestalRenderer::new);
     }
 
     @SubscribeEvent
@@ -82,6 +86,8 @@ public class ExampleModClient {
         event.registerSpriteSet(ModParticles.CAULDRON_BUBBLE.get(), CauldronBubbleParticle.Provider::new);
         event.registerSpriteSet(ModParticles.FLIGHT_MOTE.get(), FlightMoteParticle.Provider::new);
         event.registerSpriteSet(ModParticles.DRAIN_WASH.get(), DrainWashParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.ELEMENT_DRIP_HANG.get(), ElementDripParticle.HangProvider::new);
+        event.registerSpriteSet(ModParticles.ELEMENT_DRIP_FALL.get(), ElementDripParticle.FallProvider::new);
     }
 
     @SubscribeEvent

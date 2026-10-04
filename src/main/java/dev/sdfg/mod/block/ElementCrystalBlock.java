@@ -105,8 +105,8 @@ public class ElementCrystalBlock extends Block {
 
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        BlockPos below = pos.below();
-        return level.getBlockState(below).isFaceSturdy(level, below, Direction.UP);
+        // Quartz is only the seed; once the bud exists it stays on the pedestal alone.
+        return level.getBlockState(pos.below()).getBlock() instanceof CrystallizationPedestalBlock;
     }
 
     @Override

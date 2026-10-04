@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "sdfg:block/crystallization_pedestal"
+    }
+  }
+}

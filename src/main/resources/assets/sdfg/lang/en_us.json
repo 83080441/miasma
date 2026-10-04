@@ -26,6 +26,7 @@
   "block.sdfg.element_valve": "Valve Pipe",
   "block.sdfg.element_container": "Container",
   "block.sdfg.condensation_filter": "Condensation Filter",
+  "block.sdfg.crystallization_pedestal": "Crystallization Pedestal",
   "block.sdfg.element_crystal": "Element Crystal",
   "item.sdfg.vial": "Vial",
   "item.sdfg.wand": "Wand",
