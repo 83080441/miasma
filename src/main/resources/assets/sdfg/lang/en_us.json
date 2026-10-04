@@ -25,6 +25,8 @@
   "block.sdfg.element_pipe": "Pipe",
   "block.sdfg.element_valve": "Valve Pipe",
   "block.sdfg.element_container": "Container",
+  "block.sdfg.condensation_filter": "Condensation Filter",
+  "block.sdfg.element_crystal": "Element Crystal",
   "item.sdfg.vial": "Vial",
   "item.sdfg.wand": "Wand",
   "item.sdfg.scroll_bolt": "Scroll: Bolt",

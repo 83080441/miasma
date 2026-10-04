@@ -21,13 +21,15 @@ Una tolva sobre el caldero elige un elemento al azar, lo saca y lo empuja por tu
 | Tubería | `sdfg:element_pipe` | Tubo de hierro de 4 píxeles | Une la tapa con el contenedor. También se une a otras tuberías. Siempre deja pasar. |
 | Tubería de paso | `sdfg:element_valve` | Tubo con núcleo de cobre o de redstone | Sección con estados **abierta** y **cerrada**. Cerrada, el elemento no cruza. |
 | Contenedor | `sdfg:element_container` | Vidrio con el líquido dentro | Guarda lo que llega. Hasta **100** de cada elemento. El nivel y el color se ven en el bloque. |
+| Filtro de condensación | `sdfg:condensation_filter` | Pico de cobre/hierro | Va **bajo** el tanque (o pegado a tubos). Saca **un** líquido al azar y lo gotea. |
+| Cristal de elemento | `sdfg:element_crystal` | Brote → racimo (como amatista) | Crece en el aire bajo el filtro. A los **10** gotas queda sólido. |
 
 Están en la pestaña del mod.
 
-| Locale | Tapa | Tubería | Tubería de paso | Contenedor |
-|--------|------|---------|----------------|------------|
-| es | Tapa del caldero | Tubería | Tubería de paso | Contenedor |
-| en | Cauldron Lid | Pipe | Valve Pipe | Container |
+| Locale | Tapa | Tubería | Tubería de paso | Contenedor | Filtro | Cristal |
+|--------|------|---------|----------------|------------|--------|---------|
+| es | Tapa del caldero | Tubería | Tubería de paso | Contenedor | Filtro de condensación | Cristal de elemento |
+| en | Cauldron Lid | Pipe | Valve Pipe | Container | Condensation Filter | Element Crystal |
 
 ---
 
@@ -103,12 +105,33 @@ El vial vacío se queda vacío si el contenedor no tiene nada. El líquido del i
 
 ---
 
+## Filtro de condensación
+
+Estructura (de arriba a abajo):
+
+1. **Filtro** — bajo el contenedor, o en la red de tubos.
+2. **Espacio vacío** — ahí crece el cristal (más adelante irá un seed; por ahora el aire basta).
+3. **Cualquier bloque** con cara superior sólida — si no hay soporte, no se forma nada.
+
+Cada **1–2 s** (al azar):
+
+- Toma líquido del tanque de encima, o del contenedor más cercano por tubos.
+- Elige **un** elemento al azar entre los que hay y se queda con ese hasta terminar o vaciarlo.
+- Gasta **10** de ese elemento por gota.
+- Si debajo hay aire (o el mismo cristal a medio crecer) y bajo eso un bloque sólido, avanza el cristal **1** edad.
+- Edad **1–3** brote chico, **4–6** medio, **7–9** grande, **10** racimo sólido (se puede minar y suelta el cristal).
+
+El cristal se tiñe con el color del elemento.
+
+---
+
 ## Casco revelador
 
 Con el casco y agachado:
 
 - Mirar el caldero, o la tapa encima, muestra lo que sigue en el cuenco.
 - Mirar el vidrio muestra lo que ya llegó.
+- Mirar un cristal muestra su elemento y cuánto lleva condensado.
 
 ---
 
@@ -120,9 +143,11 @@ Con el casco y agachado:
 | Tubería | `block/ElementPipeBlock.java` |
 | Tubería de paso | `block/ValvePipeBlock.java` |
 | Contenedor | `block/ElementContainerBlock.java`, `block/ElementContainerBlockEntity.java` |
+| Filtro | `block/CondensationFilterBlock.java`, `block/CondensationFilterBlockEntity.java` |
+| Cristal | `block/ElementCrystalBlock.java`; tinte `client/ElementCrystalTint.java` |
 | Vial | `item/VialItem.java`; menú `inventory/VialMenu.java` |
 | Camino | `block/PipeNetwork.java` |
 | Sacar del caldero | `HeatedCauldronBlockEntity.drain` |
 | Modelos | `assets/sdfg/models/block/element_pipe_core.json`, `element_pipe_arm.json`, `element_pipe_inventory.json` |
 
-La tapa usa el modelo `minecraft:block/hopper`. El contenedor es vidrio con `water_still` teñido por `ElementContainerTint`. La tubería usa la textura `minecraft:block/iron_block`.
+La tapa usa el modelo `minecraft:block/hopper`. El contenedor es vidrio con `water_still` teñido por `ElementContainerTint`. La tubería usa la textura `minecraft:block/iron_block`. El cristal reusa la forma de amatista en gris, teñida por elemento.

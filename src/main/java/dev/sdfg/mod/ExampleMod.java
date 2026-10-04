@@ -30,7 +30,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import dev.sdfg.mod.block.CauldronLidBlock;
+import dev.sdfg.mod.block.CondensationFilterBlock;
 import dev.sdfg.mod.block.ElementContainerBlock;
+import dev.sdfg.mod.block.ElementCrystalBlock;
 import dev.sdfg.mod.block.ElementPipeBlock;
 import dev.sdfg.mod.block.HeatedCauldronBlock;
 import dev.sdfg.mod.block.ValvePipeBlock;
@@ -101,6 +103,24 @@ public class ExampleMod {
     );
     public static final DeferredItem<BlockItem> ELEMENT_CONTAINER_ITEM = ITEMS.registerSimpleBlockItem("element_container", ELEMENT_CONTAINER);
 
+    /** Spout under a tank / on pipes. Drips one locked element into a crystal below. */
+    public static final DeferredBlock<CondensationFilterBlock> CONDENSATION_FILTER = BLOCKS.registerBlock(
+            "condensation_filter",
+            CondensationFilterBlock::new,
+            CondensationFilterBlock::filterProperties
+    );
+    public static final DeferredItem<BlockItem> CONDENSATION_FILTER_ITEM =
+            ITEMS.registerSimpleBlockItem("condensation_filter", CONDENSATION_FILTER);
+
+    /** Growing / solid element crystal formed under a condensation filter. */
+    public static final DeferredBlock<ElementCrystalBlock> ELEMENT_CRYSTAL = BLOCKS.registerBlock(
+            "element_crystal",
+            ElementCrystalBlock::new,
+            ElementCrystalBlock::crystalProperties
+    );
+    public static final DeferredItem<BlockItem> ELEMENT_CRYSTAL_ITEM =
+            ITEMS.registerSimpleBlockItem("element_crystal", ELEMENT_CRYSTAL);
+
     /** Corked vial. Holds up to 100 of a container's mix. No recipe yet. */
     public static final DeferredItem<VialItem> VIAL = ITEMS.registerItem("vial", VialItem::new);
 
@@ -134,6 +154,8 @@ public class ExampleMod {
                 output.accept(ELEMENT_PIPE_ITEM.get());
                 output.accept(VALVE_PIPE_ITEM.get());
                 output.accept(ELEMENT_CONTAINER_ITEM.get());
+                output.accept(CONDENSATION_FILTER_ITEM.get());
+                output.accept(ELEMENT_CRYSTAL_ITEM.get());
                 output.accept(VIAL.get());
                 output.accept(WAND.get());
                 output.accept(SCROLL_BOLT.get());

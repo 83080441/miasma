@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.MapColor;
 
-/** Iron-textured pipe. Connects to other pipes, the cauldron lid, and element containers. */
+/** Iron-textured pipe. Connects to lids, pipes, valves, containers, and condensation filters. */
 public class ElementPipeBlock extends PipeBlock {
     public static final MapCodec<ElementPipeBlock> CODEC = simpleCodec(ElementPipeBlock::new);
     /** 4px square, matching the block model. */

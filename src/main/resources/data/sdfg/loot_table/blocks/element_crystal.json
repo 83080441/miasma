@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "sdfg:element_crystal",
+          "functions": [
+            {
+              "function": "minecraft:copy_state",
+              "block": "sdfg:element_crystal",
+              "properties": ["element", "age"]
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "sdfg:element_crystal",
+          "properties": {
+            "age": "10"
+          }
+        }
+      ]
+    }
+  ]
+}

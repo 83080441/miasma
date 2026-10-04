@@ -2,6 +2,7 @@ package dev.sdfg.mod.client;
 
 import dev.sdfg.mod.block.CauldronLidBlock;
 import dev.sdfg.mod.block.ElementContainerBlock;
+import dev.sdfg.mod.block.ElementCrystalBlock;
 import dev.sdfg.mod.block.HeatedCauldronBlock;
 import dev.sdfg.mod.ExampleMod;
 import dev.sdfg.mod.element.BlockResidue;
@@ -138,6 +139,8 @@ public final class WarpRevealOverlay {
             title = "Cauldron";
         } else if (state.getBlock() instanceof ElementContainerBlock) {
             title = "Container";
+        } else if (state.getBlock() instanceof ElementCrystalBlock) {
+            title = "Crystal";
         }
         ElementAmounts amounts = BlockResidue.amounts(player.level(), pos);
         if (amounts.isEmpty()) {

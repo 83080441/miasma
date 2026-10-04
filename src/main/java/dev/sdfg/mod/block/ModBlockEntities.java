@@ -30,6 +30,12 @@ public final class ModBlockEntities {
                     Set.of(ExampleMod.ELEMENT_CONTAINER.get())
             ));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CondensationFilterBlockEntity>> CONDENSATION_FILTER =
+            BLOCK_ENTITIES.register("condensation_filter", () -> new BlockEntityType<>(
+                    CondensationFilterBlockEntity::new,
+                    Set.of(ExampleMod.CONDENSATION_FILTER.get())
+            ));
+
     private ModBlockEntities() {
     }
 }

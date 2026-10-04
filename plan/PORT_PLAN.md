@@ -52,7 +52,10 @@ Paquete ya alineado: `dev.sdfg.mod` / namespace `sdfg`. Si el destino usa otro i
 | `block/ElementPipeBlock.java` | Tubería de hierro que conecta tapa, tuberías y contenedor |
 | `block/ValvePipeBlock.java` | Tubería de paso: `open` deja fluir; cerrada corta esa sección |
 | `block/ElementContainerBlock.java` | Contenedor de vidrio; `level` 0–4 muestra el líquido de la mezcla |
-| `block/PipeNetwork.java` | Camino tapa → tuberías → contenedor más cercano |
+| `block/CondensationFilterBlock.java` | Filtro bajo el tanque / en tubos; gotea un elemento |
+| `block/CondensationFilterBlockEntity.java` | Bloqueo de elemento, goteo 10 u, cristal en 10 gotas |
+| `block/ElementCrystalBlock.java` | Cristal edad 1–10 + elemento; age 10 = sólido |
+| `block/PipeNetwork.java` | Camino tapa → tuberías → contenedor más cercano; el filtro también conecta |
 | `data/<modid>/advancement/progress/root.json` | Raíz de la pestaña de logros (fondo End, `minecraft:impossible`) |
 | `data/<modid>/advancement/progress/<elemento>.json` | Un logro por elemento (fuego…aether), hijo de la raíz, icono del balde puro |
 
@@ -226,6 +229,8 @@ Checklist visual:
 - [ ] Con el casco, al mirar un bloque solo aparecen los elementos que tiene; el que no está no deja un `?`
 - [ ] Con la varita, la fila solo muestra elementos conocidos del 3×3×3; uno desconocido no deja un `?`
 - [ ] Con la varita, bajo cada cantidad aparece el nombre localizado del elemento (`element.sdfg.<id>`)
+- [ ] Filtro de condensación bajo el tanque (o en tubos): elige un elemento al azar y gotea 10 u cada 1–2 s
+- [ ] Bajo el filtro, aire + bloque sólido debajo → cristal del elemento; 10 gotas = sólido minable; sin soporte no crece
 - [ ] El pergamino Bolt usa la página en blanco y su línea dice los elementos tierra, fuego y agua
 - [ ] Clic derecho con la varita y Bolt en la casilla 1, 2 o 3: 3 s quieto; soltar no devuelve lo ya comido y no tira flechas
 - [ ] Cada segundo resta 10 de cada elemento del pergamino, en orden al azar y de bloques al azar del 3×3×3
@@ -263,6 +268,9 @@ src/main/java/dev/sdfg/mod/
     ElementPipeBlock.java
     ValvePipeBlock.java         # open/closed; cerrada no deja pasar
     ElementContainerBlock.java # vidrio
+    CondensationFilterBlock.java
+    CondensationFilterBlockEntity.java
+    ElementCrystalBlock.java   # age 1–10; 10 = sólido
     PipeNetwork.java
   item/
     WandItem.java              # palo; sin receta; suma lo que queda del 3×3×3; canaliza 3 s
@@ -308,6 +316,7 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-02 | Filtro de condensación bajo el tanque: gotea un líquido y forma cristal en 10 gotas | `CondensationFilter*`; `ElementCrystal*`; `PIPE_README`; checklist §5 |
 | 2026-10-02 | Con la varita, bajo el número mostrar el nombre del elemento | `ElementStripHud` (`showNames`); `Element.displayName`; checklist §5 |
 | 2026-10-02 | Iconos de elemento con prefijo `element_`; se deja el recolor del icono | `textures/gui/element/element_<id>.png`; `ElementStripHud` |
 | 2026-10-02 | La esfera de las esencias usa el sprite nuevo; solo se le quita el color y se conserva el dibujo | `textures/block/essence.png` |

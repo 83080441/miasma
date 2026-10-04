@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/tinted_cross",
+  "textures": {
+    "cross": "sdfg:block/element_crystal_cluster"
+  }
+}

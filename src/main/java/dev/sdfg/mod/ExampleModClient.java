@@ -9,6 +9,7 @@ import dev.sdfg.mod.item.WandChannel;
 import dev.sdfg.mod.client.DrainWashParticle;
 import dev.sdfg.mod.client.ElementArrowRenderer;
 import dev.sdfg.mod.client.ElementContainerTint;
+import dev.sdfg.mod.client.ElementCrystalTint;
 import dev.sdfg.mod.client.FlightMoteParticle;
 import dev.sdfg.mod.client.ElementMoteParticle;
 import dev.sdfg.mod.client.GnomeModel;
@@ -113,6 +114,7 @@ public class ExampleModClient {
     static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(List.of(CauldronWaterTint.INSTANCE), ExampleMod.CAULDRON.get());
         event.register(List.of(ElementContainerTint.INSTANCE), ExampleMod.ELEMENT_CONTAINER.get());
+        event.register(List.of(ElementCrystalTint.INSTANCE), ExampleMod.ELEMENT_CRYSTAL.get());
     }
 
     @SubscribeEvent

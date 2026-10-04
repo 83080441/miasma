@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "sdfg:block/condensation_filter"
+    }
+  }
+}

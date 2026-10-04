@@ -13,6 +13,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.sdfg.mod.block.ElementContainerBlock;
 import dev.sdfg.mod.block.ElementContainerBlockEntity;
+import dev.sdfg.mod.block.ElementCrystalBlock;
 import dev.sdfg.mod.block.HeatedCauldronBlock;
 import dev.sdfg.mod.block.HeatedCauldronBlockEntity;
 import io.netty.buffer.ByteBuf;
@@ -70,6 +71,12 @@ public final class BlockResidue {
         if (state.getBlock() instanceof ElementContainerBlock
                 && level.getBlockEntity(pos) instanceof ElementContainerBlockEntity container) {
             return container.contents();
+        }
+        if (state.getBlock() instanceof ElementCrystalBlock) {
+            int amount = ElementCrystalBlock.isSolid(state)
+                    ? 100
+                    : state.getValue(ElementCrystalBlock.AGE) * 10;
+            return ElementAmounts.of(ElementCrystalBlock.elementOf(state), amount);
         }
         Stored stored = find(level, pos);
         if (stored != null && stored.blockId == blockId(state)) {

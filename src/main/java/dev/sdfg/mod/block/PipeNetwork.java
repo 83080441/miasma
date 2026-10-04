@@ -20,7 +20,8 @@ public final class PipeNetwork {
         return state.getBlock() instanceof ElementPipeBlock
                 || state.getBlock() instanceof ValvePipeBlock
                 || state.getBlock() instanceof CauldronLidBlock
-                || state.getBlock() instanceof ElementContainerBlock;
+                || state.getBlock() instanceof ElementContainerBlock
+                || state.getBlock() instanceof CondensationFilterBlock;
     }
 
     /** A section the element can travel through. A closed valve blocks its neighbours. */

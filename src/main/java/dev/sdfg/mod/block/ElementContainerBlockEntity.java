@@ -58,6 +58,25 @@ public class ElementContainerBlockEntity extends BlockEntity implements Containe
         return moved;
     }
 
+    /** Removes up to {@code amount} of one element. Returns how much left the tank. */
+    public int drain(Element element, int amount) {
+        if (element == null || amount <= 0) {
+            return 0;
+        }
+        int have = this.contents.get(element);
+        int take = Math.min(have, amount);
+        if (take <= 0) {
+            return 0;
+        }
+        this.contents.set(element, have - take);
+        Level level = this.level;
+        if (level != null) {
+            ElementContainerBlock.applyFill(level, this.worldPosition, this.contents);
+        }
+        this.sync();
+        return take;
+    }
+
     /** Removes the drawn share. Called when a vial is filled. */
     public void extract(ElementAmounts drawn) {
         if (drawn == null || drawn.isEmpty()) {
