@@ -18,8 +18,8 @@ Una tolva sobre el caldero elige un elemento al azar, lo saca y lo empuja por tu
 | Bloque | Id | Se ve como | Qué hace |
 |--------|----|------------|----------|
 | Tapa del caldero | `sdfg:cauldron_lid` | Tolva, pico hacia abajo | Se coloca solo encima del caldero. Es el inicio de la red. |
-| Tubería | `sdfg:element_pipe` | Tubo de hierro de 4 píxeles | Une la tapa con el contenedor. También se une a otras tuberías. Siempre deja pasar. |
-| Tubería de paso | `sdfg:element_valve` | Tubo con núcleo de cobre o de redstone | Sección con estados **abierta** y **cerrada**. Cerrada, el elemento no cruza. |
+| Tubería | `sdfg:element_pipe` | Tubo de hierro de 5 píxeles | Une la tapa con el contenedor. También se une a otras tuberías. Siempre deja pasar. Se pega a piso/pared si hay cara sólida; si no, queda al centro. |
+| Tubería de paso | `sdfg:element_valve` | Tubo con núcleo de cobre o de redstone | Igual que la tubería (apoyo a muro/piso). Sección **abierta**/**cerrada**. Cerrada, el elemento no cruza. |
 | Contenedor | `sdfg:element_container` | Vidrio con el líquido dentro | Guarda lo que llega. Hasta **100** de cada elemento. El nivel y el color se ven en el bloque. |
 | Filtro de condensación | `sdfg:condensation_filter` | Pico de cobre/hierro | Va **bajo** el tanque (o pegado a tubos). Saca **un** líquido al azar y lo gotea. |
 | Pedestal de cristalización | `sdfg:crystallization_pedestal` | Pedestal de cuarzo | Sostiene **un** cuarzo acostado (seed). La primera gota lo consume. |
@@ -41,7 +41,9 @@ Están en la pestaña del mod.
 3. Tuberías en cualquier dirección, pegadas a la tapa, entre sí o al contenedor.
 4. Un contenedor de vidrio en algún punto de esa red.
 
-La tubería muestra un brazo hacia cada vecino que sea tapa, otra tubería, una tubería de paso o contenedor. Sola, se ve solo el cubo del centro.
+Al colocar, el tubo se **carga contra la cara** en la que hiciste clic (piso, techo o pared) si esa cara es sólida. Si no hay muralla (por ejemplo solo aire o otro tubo), queda **al centro** de la celda. Si se rompe el apoyo, busca otro muro o vuelve al centro.
+
+La tubería muestra un brazo hacia cada vecino que sea tapa, otra tubería, una tubería de paso o contenedor. Sola, se ve solo el cubo del núcleo (pegado al apoyo o centrado).
 
 ---
 
@@ -141,7 +143,7 @@ Con el casco y agachado:
 | Pieza | Código |
 |-------|--------|
 | Tapa | `block/CauldronLidBlock.java`, `block/CauldronLidBlockEntity.java` |
-| Tubería | `block/ElementPipeBlock.java` |
+| Tubería | `block/ElementPipeBlock.java`; apoyo `PipeSupport*`, formas `PipeShapes` |
 | Tubería de paso | `block/ValvePipeBlock.java` |
 | Contenedor | `block/ElementContainerBlock.java`, `block/ElementContainerBlockEntity.java` |
 | Filtro | `block/CondensationFilterBlock.java`, `block/CondensationFilterBlockEntity.java` |

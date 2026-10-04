@@ -49,8 +49,9 @@ Paquete ya alineado: `dev.sdfg.mod` / namespace `sdfg`. Si el destino usa otro i
 | `element/ElementDiscovery.java` | Elementos descubiertos; otorga `progress/root` (acercarse) y `progress/<elemento>` al mirar ese primario con el catalejo. `unlockLevel` marca un catálogo |
 | `ElementCommands.java` | `/element unlock <nivel>`; el 1 son las partículas actuales |
 | `block/CauldronLidBlock.java` | Tapa (modelo de tolva) sobre el caldero; origen de la red de tuberías |
-| `block/ElementPipeBlock.java` | Tubería de hierro que conecta tapa, tuberías y contenedor |
-| `block/ValvePipeBlock.java` | Tubería de paso: `open` deja fluir; cerrada corta esa sección |
+| `block/ElementPipeBlock.java` | Tubería de hierro; `support` la pega a piso/pared o al centro |
+| `block/ValvePipeBlock.java` | Tubería de paso: `open` deja fluir; mismo `support` que la tubería |
+| `block/PipeSupport.java` / `PipeSupportLogic.java` / `PipeShapes.java` | Cara de apoyo, resolución y shapes flush |
 | `block/ElementContainerBlock.java` | Contenedor de vidrio; `level` 0–4 muestra el líquido de la mezcla |
 | `block/CondensationFilterBlock.java` | Filtro bajo el tanque / en tubos; gotea un elemento |
 | `block/CondensationFilterBlockEntity.java` | Bloqueo de elemento, goteo 10 u, cristal en 10 gotas |
@@ -225,6 +226,7 @@ Checklist visual:
 - [ ] Acercarse a un Warp (<12 bloques) desbloquea la pestaña de logros
 - [ ] Con el catalejo, el elemento primario de ese Warp desbloquea su propio logro
 - [ ] Tapa sobre el caldero + tubería + contenedor de vidrio: cada segundo sale un solo elemento al azar y el resto se queda en el caldero
+- [ ] Tubería/válvula pegada al piso o pared al colocar; sin cara sólida queda al centro; si se rompe el apoyo, se recentra o busca otro
 - [ ] Tubería de paso cerrada corta el camino; clic derecho la abre y el elemento vuelve a pasar
 - [ ] El contenedor de vidrio muestra el líquido: sube con la cantidad y se tiñe con la mezcla
 - [ ] Clic derecho en el vidrio: un vial vacío saca hasta 100, en la proporción de la mezcla
@@ -322,6 +324,9 @@ src/main/resources/assets/sdfg/particles/warp_mote.json
 
 | Fecha | Cambio pedido | Impacto en el plan |
 |---|---|---|
+| 2026-10-03 | Revertir uniones más gruesas; volver a tubo uniforme 5 px | modelos core/arm; `PipeShapes`; `PIPE_README` |
+| 2026-10-03 | Probar tuberías 1 px más gruesas (4→5; válvula cerrada 8→9) | `PIPE_SIZE`; modelos core/arm; `PipeShapes`; `PIPE_README` |
+| 2026-10-03 | Tuberías pegadas a muro/piso; sin muralla al centro | `PipeSupport*`; `PipeShapes`; blockstates/modelos flush; `PIPE_README` |
 | 2026-10-03 | Gotas del filtro teñidas con el color del elemento | `ELEMENT_DRIP_HANG` / `ELEMENT_DRIP_FALL`; `ElementDripParticle` |
 | 2026-10-03 | Chance del gotero = lava→caldero (~5.9%) para todos los elementos | `LAVA_TRANSFER_PROBABILITY_PER_RANDOM_TICK`; `CondensationFilter*` |
 | 2026-10-03 | Gotero del filtro: gotas dripstone (cuelgan y caen) antes de condensar | `CondensationFilter*`; `DRIPPING_DRIPSTONE_*` |

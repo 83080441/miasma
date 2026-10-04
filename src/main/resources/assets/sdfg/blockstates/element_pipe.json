@@ -1,33 +1,394 @@
 {
   "multipart": [
     {
+      "when": {
+        "support": "none"
+      },
       "apply": {
         "model": "sdfg:block/element_pipe_core"
       }
     },
     {
-      "when": { "north": "true" },
-      "apply": { "model": "sdfg:block/element_pipe_arm" }
+      "when": {
+        "support": "down"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_core_down"
+      }
     },
     {
-      "when": { "east": "true" },
-      "apply": { "model": "sdfg:block/element_pipe_arm", "y": 90, "uvlock": true }
+      "when": {
+        "support": "up"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_core_up"
+      }
     },
     {
-      "when": { "south": "true" },
-      "apply": { "model": "sdfg:block/element_pipe_arm", "y": 180, "uvlock": true }
+      "when": {
+        "support": "north"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_core_north"
+      }
     },
     {
-      "when": { "west": "true" },
-      "apply": { "model": "sdfg:block/element_pipe_arm", "y": 270, "uvlock": true }
+      "when": {
+        "support": "south"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_core_south"
+      }
     },
     {
-      "when": { "up": "true" },
-      "apply": { "model": "sdfg:block/element_pipe_arm", "x": 270, "uvlock": true }
+      "when": {
+        "support": "west"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_core_west"
+      }
     },
     {
-      "when": { "down": "true" },
-      "apply": { "model": "sdfg:block/element_pipe_arm", "x": 90, "uvlock": true }
+      "when": {
+        "support": "east"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_core_east"
+      }
+    },
+    {
+      "when": {
+        "support": "none",
+        "north": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm"
+      }
+    },
+    {
+      "when": {
+        "support": "none",
+        "east": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "support": "none",
+        "south": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "support": "none",
+        "west": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "support": "none",
+        "up": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm",
+        "x": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "support": "none",
+        "down": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm",
+        "x": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "support": "down",
+        "north": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_down_north"
+      }
+    },
+    {
+      "when": {
+        "support": "down",
+        "east": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_down_east"
+      }
+    },
+    {
+      "when": {
+        "support": "down",
+        "south": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_down_south"
+      }
+    },
+    {
+      "when": {
+        "support": "down",
+        "west": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_down_west"
+      }
+    },
+    {
+      "when": {
+        "support": "down",
+        "up": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_down_up"
+      }
+    },
+    {
+      "when": {
+        "support": "up",
+        "north": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_up_north"
+      }
+    },
+    {
+      "when": {
+        "support": "up",
+        "east": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_up_east"
+      }
+    },
+    {
+      "when": {
+        "support": "up",
+        "south": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_up_south"
+      }
+    },
+    {
+      "when": {
+        "support": "up",
+        "west": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_up_west"
+      }
+    },
+    {
+      "when": {
+        "support": "up",
+        "down": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_up_down"
+      }
+    },
+    {
+      "when": {
+        "support": "north",
+        "east": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_north_east"
+      }
+    },
+    {
+      "when": {
+        "support": "north",
+        "south": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_north_south"
+      }
+    },
+    {
+      "when": {
+        "support": "north",
+        "west": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_north_west"
+      }
+    },
+    {
+      "when": {
+        "support": "north",
+        "up": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_north_up"
+      }
+    },
+    {
+      "when": {
+        "support": "north",
+        "down": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_north_down"
+      }
+    },
+    {
+      "when": {
+        "support": "south",
+        "north": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_south_north"
+      }
+    },
+    {
+      "when": {
+        "support": "south",
+        "east": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_south_east"
+      }
+    },
+    {
+      "when": {
+        "support": "south",
+        "west": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_south_west"
+      }
+    },
+    {
+      "when": {
+        "support": "south",
+        "up": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_south_up"
+      }
+    },
+    {
+      "when": {
+        "support": "south",
+        "down": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_south_down"
+      }
+    },
+    {
+      "when": {
+        "support": "west",
+        "north": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_west_north"
+      }
+    },
+    {
+      "when": {
+        "support": "west",
+        "east": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_west_east"
+      }
+    },
+    {
+      "when": {
+        "support": "west",
+        "south": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_west_south"
+      }
+    },
+    {
+      "when": {
+        "support": "west",
+        "up": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_west_up"
+      }
+    },
+    {
+      "when": {
+        "support": "west",
+        "down": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_west_down"
+      }
+    },
+    {
+      "when": {
+        "support": "east",
+        "north": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_east_north"
+      }
+    },
+    {
+      "when": {
+        "support": "east",
+        "south": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_east_south"
+      }
+    },
+    {
+      "when": {
+        "support": "east",
+        "west": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_east_west"
+      }
+    },
+    {
+      "when": {
+        "support": "east",
+        "up": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_east_up"
+      }
+    },
+    {
+      "when": {
+        "support": "east",
+        "down": "true"
+      },
+      "apply": {
+        "model": "sdfg:block/element_pipe_arm_east_down"
+      }
     }
   ]
 }

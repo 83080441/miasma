@@ -15,22 +15,22 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** Iron-textured pipe. Connects to lids, pipes, valves, containers, and condensation filters. */
 public class ElementPipeBlock extends PipeBlock {
     public static final MapCodec<ElementPipeBlock> CODEC = simpleCodec(ElementPipeBlock::new);
-    /** 4px square, matching the block model. */
-    private static final float PIPE_SIZE = 4.0F;
-
     public ElementPipeBlock(BlockBehaviour.Properties properties) {
-        super(PIPE_SIZE, properties);
+        super(PipeShapes.PIPE_SIZE, properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(NORTH, false)
                 .setValue(EAST, false)
                 .setValue(SOUTH, false)
                 .setValue(WEST, false)
                 .setValue(UP, false)
-                .setValue(DOWN, false));
+                .setValue(DOWN, false)
+                .setValue(PipeSupport.PROPERTY, PipeSupport.NONE));
     }
 
     public static BlockBehaviour.Properties pipeProperties() {
@@ -48,7 +48,10 @@ public class ElementPipeBlock extends PipeBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return withConnections(context.getLevel(), context.getClickedPos(), this.defaultBlockState());
+        Direction preferred = context.getClickedFace().getOpposite();
+        BlockState state = this.defaultBlockState()
+                .setValue(PipeSupport.PROPERTY, PipeSupportLogic.resolve(context.getLevel(), context.getClickedPos(), preferred));
+        return withConnections(context.getLevel(), context.getClickedPos(), state);
     }
 
     public static BlockState withConnections(BlockGetter level, BlockPos pos, BlockState state) {
@@ -72,11 +75,19 @@ public class ElementPipeBlock extends PipeBlock {
             BlockState neighbourState,
             RandomSource random
     ) {
-        return state.setValue(PROPERTY_BY_DIRECTION.get(direction), PipeNetwork.connects(neighbourState));
+        PipeSupport support = PipeSupportLogic.update(level, pos, state.getValue(PipeSupport.PROPERTY));
+        return state
+                .setValue(PipeSupport.PROPERTY, support)
+                .setValue(PROPERTY_BY_DIRECTION.get(direction), PipeNetwork.connects(neighbourState));
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return PipeShapes.shape(state, false);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
+        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, PipeSupport.PROPERTY);
     }
 }

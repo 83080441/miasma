@@ -23,6 +23,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * A pipe section with an open/closed gate. Closed, nothing flows through it.
@@ -31,10 +33,8 @@ import net.minecraft.world.phys.BlockHitResult;
 public class ValvePipeBlock extends PipeBlock {
     public static final MapCodec<ValvePipeBlock> CODEC = simpleCodec(ValvePipeBlock::new);
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
-    private static final float PIPE_SIZE = 4.0F;
-
     public ValvePipeBlock(BlockBehaviour.Properties properties) {
-        super(PIPE_SIZE, properties);
+        super(PipeShapes.PIPE_SIZE, properties);
         BlockState state = this.stateDefinition.any()
                 .setValue(NORTH, false)
                 .setValue(EAST, false)
@@ -42,7 +42,8 @@ public class ValvePipeBlock extends PipeBlock {
                 .setValue(WEST, false)
                 .setValue(UP, false)
                 .setValue(DOWN, false)
-                .setValue(OPEN, false);
+                .setValue(OPEN, false)
+                .setValue(PipeSupport.PROPERTY, PipeSupport.NONE);
         this.registerDefaultState(state);
     }
 
@@ -65,7 +66,10 @@ public class ValvePipeBlock extends PipeBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return withConnections(context.getLevel(), context.getClickedPos(), this.defaultBlockState());
+        Direction preferred = context.getClickedFace().getOpposite();
+        BlockState state = this.defaultBlockState()
+                .setValue(PipeSupport.PROPERTY, PipeSupportLogic.resolve(context.getLevel(), context.getClickedPos(), preferred));
+        return withConnections(context.getLevel(), context.getClickedPos(), state);
     }
 
     private static BlockState withConnections(BlockGetter level, BlockPos pos, BlockState state) {
@@ -89,7 +93,10 @@ public class ValvePipeBlock extends PipeBlock {
             BlockState neighbourState,
             RandomSource random
     ) {
-        return state.setValue(PROPERTY_BY_DIRECTION.get(direction), PipeNetwork.connects(neighbourState));
+        PipeSupport support = PipeSupportLogic.update(level, pos, state.getValue(PipeSupport.PROPERTY));
+        return state
+                .setValue(PipeSupport.PROPERTY, support)
+                .setValue(PROPERTY_BY_DIRECTION.get(direction), PipeNetwork.connects(neighbourState));
     }
 
     @Override
@@ -111,7 +118,12 @@ public class ValvePipeBlock extends PipeBlock {
     }
 
     @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return PipeShapes.shape(state, !state.getValue(OPEN));
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, OPEN);
+        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, OPEN, PipeSupport.PROPERTY);
     }
 }
